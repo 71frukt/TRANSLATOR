@@ -1,0 +1,29 @@
+digraph G{               
+bgcolor = "darkslategray";      
+edge [color = "aqua"]; 
+node_0x525000000100 [shape = "egg", style = filled, fillcolor = "tan", label = "new_func"]
+node_0x525000000150 [shape = "egg", style = filled, fillcolor = "tan", label = "int"]
+node_0x5250000001a0 [shape = "egg", style = filled, fillcolor = "tan", label = "func_t"]
+node_0x5250000001f0 [shape = "square", style = filled, fillcolor = "darkturquoise", label = "MAIN_HOI"]
+node_0x525000000240 [shape = "egg", style = filled, fillcolor = "tan", label = "param"]
+node_0x525000000290 [shape = "egg", style = filled, fillcolor = "tan", label = "int"]
+node_0x5250000002e0 [shape = "egg", style = filled, fillcolor = "tan", label = "var_t"]
+node_0x525000000330 [shape = "square", style = filled, fillcolor = "aquamarine", label = "arg"]
+node_0x525000000380 [shape = "hexagon", style = filled, fillcolor = "yellow", label = "new_block"]
+node_0x5250000003d0 [shape = "egg", style = filled, fillcolor = "tan", label = "new_line"]
+node_0x525000000420 [shape = "record", style = filled, fillcolor = "seagreen1", label = "+"]
+node_0x525000000470 [shape = "oval", style = filled, fillcolor = "skyblue", label = "1"]
+node_0x5250000004c0 [shape = "oval", style = filled, fillcolor = "skyblue", label = "2"]
+node_0x525000000100 -> node_0x525000000150
+node_0x525000000150 -> node_0x5250000001a0
+node_0x525000000150 -> node_0x525000000380
+node_0x5250000001a0 -> node_0x5250000001f0
+node_0x5250000001a0 -> node_0x525000000240
+node_0x525000000240 -> node_0x525000000290
+node_0x525000000290 -> node_0x5250000002e0
+node_0x5250000002e0 -> node_0x525000000330
+node_0x525000000380 -> node_0x5250000003d0
+node_0x5250000003d0 -> node_0x525000000420
+node_0x525000000420 -> node_0x525000000470
+node_0x525000000420 -> node_0x5250000004c0
+} 

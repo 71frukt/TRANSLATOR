@@ -1,0 +1,9 @@
+digraph G{               
+bgcolor = "darkslategray";      
+edge [color = "aqua"]; 
+node_0x525000000100 [shape = "oval", style = filled, fillcolor = "skyblue", label = "3"]
+node_0x525000000150 [shape = "record", style = filled, fillcolor = "seagreen1", label = "+"]
+node_0x5250000001a0 [shape = "oval", style = filled, fillcolor = "skyblue", label = "5"]
+node_0x525000000150 -> node_0x525000000100
+node_0x525000000150 -> node_0x5250000001a0
+} 
