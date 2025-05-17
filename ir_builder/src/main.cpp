@@ -23,7 +23,7 @@ int main(const int argc, const char *argv[])
     IR_struct ir = {};
     IrCtor(&ir, START_IR_DATA_CAPACITY);
 
-    GetOperand(&ir, &code_tree, code_tree.root_ptr);
+    NodeToIrOperand(&ir, code_tree.root_ptr);
     IR_DUMP(&ir);
 
     IrDtor(&ir);

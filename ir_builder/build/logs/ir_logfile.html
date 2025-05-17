@@ -67,43 +67,24 @@
 	<span class=SkyBlue>Dumped</span> from <span class=cyan>src/main.cpp:27 (main)
 </span>
 	<span class=SkyBlue>IR dump</span>
-	IR [0x7e34ca200060]
+	IR [0x7e4ce7c00060]
 	{
-		size     = 3
+		size     = 8
 		capacity = 50
-		Blocks [0x522000000100]:
-	assignment(tmp0, tmp0, 3)	 
-	assignment(tmp1, tmp1, 5)	 
-	operation(tmp2, +, tmp0, tmp1)	 
-	<div class="tables-row">
-		<div class="table-with-caption">
-			<div class="table-caption">blocks[0]</div>
-			<table class="table">
-			<tr><td>assignment</td></tr>
-			<tr><td>tmp0</td></tr>
-			<tr><td>3</td></tr>
-			<tr><td>tmp0</td></tr>
-			</table>
-		</div>
-		<div class="table-with-caption">
-			<div class="table-caption">blocks[1]</div>
-			<table class="table">
-			<tr><td>assignment</td></tr>
-			<tr><td>tmp1</td></tr>
-			<tr><td>5</td></tr>
-			<tr><td>tmp1</td></tr>
-			</table>
-		</div>
-		<div class="table-with-caption">
-			<div class="table-caption">blocks[2]</div>
-			<table class="table">
-			<tr><td>+</td></tr>
-			<tr><td>tmp0</td></tr>
-			<tr><td>tmp1</td></tr>
-			<tr><td>tmp2</td></tr>
-			</table>
-		</div>
-	 </div>
+		IR code [0x522000000100]:
+
+		---------------------- CODE --------------------------------------
+			assign(tmp0, 5)	 
+			assign(tmp1, 98)	 
+			operation(tmp2, -, tmp0, tmp1)	 
+			assign(var0, tmp2)	 
+			assign(tmp3, var0)	 
+			assign(tmp4, 2)	 
+			operation(tmp5, -, tmp3, tmp4)	 
+			assign(var1, tmp5)	 
+		------------------------------------------------------------------
+
+	
 	}
 
 

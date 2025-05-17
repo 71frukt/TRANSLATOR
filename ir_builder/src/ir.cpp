@@ -2,8 +2,18 @@
 
 #include "ir.h"
 
-static void SetPoisonOperationBlock(IrBlock *operation_block);
+// static IrOperand NodeToIrOperand(IR_struct *ir, const Node *const cur_node);
+
 static IrOperationType TreeToIrMathOp(MathOperation_enum cur_tree_math_op);
+
+static IrOperand GetIrOperation (IR_struct *ir, const Node *const math_op_node);
+static IrOperand GetIrNum       (IR_struct *ir, const Node *const num_node);
+static IrOperand GetIrKeyWord   (IR_struct *ir, const Node *const num_node);
+static IrOperand GetIrVar       (IR_struct *ir, const Node *const var_node);
+static void SetPoisonOperationBlock(IrBlock *operation_block);
+
+
+#define NONE_OPERAND  {IR_OPERAND_TYPE_NONE, {}}
 
 
 // ====================== BLOCKS TYPE INFO ===============================
@@ -14,7 +24,7 @@ static IrOperationType TreeToIrMathOp(MathOperation_enum cur_tree_math_op);
     INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_CALL_FUNCTION ,  "RingRing"   , "call_func"     );    
     INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_FUNCTION_BODY ,  "Gyat"       , "func"          );
     INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_COND_JUMP     ,  "Frog"       , "cond_jump"     );    
-    INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_ASSIGNMENT    ,  "Gnoming"    , "assignment"    );
+    INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_ASSIGNMENT    ,  "Gnoming"    , "assign"        );
     INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_OPERATION     ,  "Digging"    , "operation"     );
     INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_RETURN        ,  "Viperr"     , "return"        );
     INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_LOCAL_LABEL   ,  "Cherepovec" , "local_label"   );
@@ -99,7 +109,7 @@ const IrOperationTypeInfo *GetIrOperationTypeInfo(IrOperationType operation_type
 }
 
 
-IrFuncRes IrCtor(IR_struct *ir, size_t start_capacity)
+IrFuncRes IrCtor(IR_struct *ir, const size_t start_capacity)
 {
     lassert(ir, "");
     lassert(start_capacity > 0, "");
@@ -136,7 +146,7 @@ IrFuncRes IrDtor(IR_struct *ir)
     return IR_FUNC_OK;
 }
 
-IrFuncRes IrRecalloc(IR_struct *ir, size_t new_capacity)
+IrFuncRes IrRecalloc(IR_struct *ir, const size_t new_capacity)
 {
     lassert(new_capacity >= ir->capacity, "invalid recalloc size");
     IR_VERIFY(ir, IR_FUNC_FAIL);
@@ -160,7 +170,7 @@ IrFuncRes IrRecalloc(IR_struct *ir, size_t new_capacity)
 }
 
 IrBlock *IrNewBlock(IR_struct *ir, const IrBlockType block_type, const IrOperationType operation_type, 
-                    const IrOperand operand_1, const IrOperand operand_2, const IrOperand ret_operand)
+                    const IrOperand ret_operand, const IrOperand operand_1, const IrOperand operand_2)
 {
     IR_VERIFY(ir, NULL);
 
@@ -205,12 +215,12 @@ static void SetPoisonOperationBlock(IrBlock *operation_block)
 //     if (cur_node == NULL)
 //         return IR_FUNC_OK;
 
-//     if (cur_node->type == KEY_WORD)
+//     if (cur_node->type == NODE_KEY_WORD)
 //     {
 //         // ...
 //     }
 
-//     if (cur_node->type == MATH_OP)
+//     if (cur_node->type == NODE_MATH_OP)
 //     {
 //         IrBlock *new_operation_block = IrNewBlock(ir);
 
@@ -220,53 +230,112 @@ static void SetPoisonOperationBlock(IrBlock *operation_block)
 //     IR_VERIFY(ir, IR_FUNC_FAIL);
 // }
 
-IrBlock *IrBuildAssignBlock(IR_struct *ir, IrOperand operand_1, IrOperand operand_2 /*, IrOperand ret_operand*/)
+
+
+/*static*/ IrOperand NodeToIrOperand(IR_struct *ir, const Node *const cur_node)    // TODO: make static
 {
     IR_VERIFY(ir, {});
+    
+    if (cur_node == NULL)
+        return NONE_OPERAND;
+    
+    switch (cur_node->type)
+    {
+    case NODE_MATH_OP:
+        return GetIrOperation(ir, cur_node); //  ret_op;
+    
+    case NODE_NUM:
+        return GetIrNum(ir, cur_node);
 
-    IrBlock *assign_block = IrNewBlock(ir, IR_BLOCK_TYPE_ASSIGNMENT, IR_OPERATION_TYPE_NONE, operand_1, operand_2, operand_1);
+    case NODE_VAR:
+        return GetIrVar(ir, cur_node);
 
+    case NODE_KEY_WORD:
+        return GetIrKeyWord(ir, cur_node);
+
+    default:
+        break;
+    }    
+        
     IR_VERIFY(ir, {});
-
-    return assign_block;
 }
 
-
-IrOperand GetOperand(IR_struct *ir, Tree *code_tree, Node *cur_node)
+static IrOperand GetIrOperation(IR_struct *ir, const Node *const math_op_node)
 {
-    IR_VERIFY(ir, {});
-    lassert(code_tree, "");
-    lassert(cur_node,  "");
+    IrOperand operand_1 = NodeToIrOperand(ir, math_op_node->left);
+    IrOperand operand_2 = NodeToIrOperand(ir, math_op_node->right);
+    
+    IrOperationType operation_type = TreeToIrMathOp(math_op_node->val.math_op->num);
+    
+    size_t new_tmp_num = ir->proper_names_count.tmp_count++;
+    IrOperand ret_op   = {.type = IR_OPERAND_TYPE_TMP, .val = {.tmp = new_tmp_num}};
+    
+    IrBlock *new_operation_block = IrNewBlock(ir, IR_BLOCK_TYPE_OPERATION, operation_type, ret_op, operand_1, operand_2);
+    
+    return ret_op;
+}
 
-    if (cur_node->type == MATH_OP)
+static IrOperand GetIrVar(IR_struct *ir, const Node *const var_node)        // tmp = var
+{
+    size_t op_tmp_num = ir->proper_names_count.tmp_count++;
+
+    IrOperand op_tmp       = {.type = IR_OPERAND_TYPE_TMP, .val = {.tmp = op_tmp_num}};
+    IrOperand assigned_var = {.type = IR_OPERAND_TYPE_VAR, .val = {.num = var_node->val.prop_name->number}};
+    
+    IrNewBlock(ir, IR_BLOCK_TYPE_ASSIGNMENT, IR_OPERATION_TYPE_NONE, NONE_OPERAND, op_tmp, assigned_var);
+
+    return op_tmp;
+}
+
+static IrOperand GetIrNum(IR_struct *ir, const Node *const num_node)          // tmp = num
+{
+    size_t op_tmp_num = ir->proper_names_count.tmp_count++;
+        
+    IrOperand op_tmp       = {.type = IR_OPERAND_TYPE_TMP, .val = {.tmp = op_tmp_num}};
+    IrOperand assigned_num = {.type = IR_OPERAND_TYPE_NUM, .val = {.num = num_node->val.num}};
+    
+    IrNewBlock(ir, IR_BLOCK_TYPE_ASSIGNMENT, IR_OPERATION_TYPE_NONE, NONE_OPERAND, op_tmp, assigned_num);
+
+    return op_tmp;
+}
+
+static IrOperand GetIrKeyWord(IR_struct *ir, const Node *const key_word_node)
+{
+    switch (key_word_node->val.key_word->name)
     {
-        IrOperand operand_1 = GetOperand(ir, code_tree, cur_node->left);
-        IrOperand operand_2 = GetOperand(ir, code_tree, cur_node->right);
+        case TREE_VAR_T_INDICATOR:
+            // [[fallthrough]];
+        case TREE_FUNC_T_INDICATOR:
+            return NodeToIrOperand(ir, key_word_node->left);
 
         
-        IrOperationType operation_type = TreeToIrMathOp(cur_node->val.math_op->num);
+        case TREE_INIT:
+        {
+            Node *type_indicator = key_word_node->left;
+
+            if (type_indicator->type == NODE_KEY_WORD && type_indicator->val.key_word->name == TREE_VAR_T_INDICATOR)
+            {
+                Node *var_node      = type_indicator->left;
+                Node *assigned_node = key_word_node->right;
+
+                IrOperand dest_operand   = {.type = IR_OPERAND_TYPE_VAR, .val = {.num = var_node->val.prop_name->number}};
+                IrOperand source_operand = NodeToIrOperand(ir, assigned_node);
+                
+                IrNewBlock(ir, IR_BLOCK_TYPE_ASSIGNMENT, IR_OPERATION_TYPE_NONE, NONE_OPERAND, dest_operand, source_operand);
+            }
+
+            return NONE_OPERAND;
+        }
         
-        size_t new_tmp_num = ir->proper_names_count.tmp_count++;
-        IrOperand ret_op   = {.type = IR_OPERAND_TYPE_TMP, .val = {.tmp = new_tmp_num}};
+
+        case TREE_NEW_EXPR:
+            NodeToIrOperand(ir, key_word_node->left);
+            NodeToIrOperand(ir, key_word_node->right);
+            return NONE_OPERAND;
         
-        IrBlock *new_operation_block = IrNewBlock(ir, IR_BLOCK_TYPE_OPERATION, operation_type, operand_1, operand_2, ret_op);
-
-        return ret_op;
-    } 
-
-    else if (cur_node->type == NUM)
-    {
-        size_t op_tmp_num     = ir->proper_names_count.tmp_count++;
-        
-        IrOperand op_tmp       = {.type = IR_OPERAND_TYPE_TMP, .val = {.tmp = op_tmp_num}};
-        IrOperand assigned_num = {.type = IR_OPERAND_TYPE_NUM, .val = {.num = cur_node->val.num}};
-
-        IrBuildAssignBlock(ir, op_tmp, assigned_num);
-
-        return op_tmp;
+        default:
+            return NONE_OPERAND;
     }
-
-    IR_VERIFY(ir, {});
 }
 
 

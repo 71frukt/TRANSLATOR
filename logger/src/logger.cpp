@@ -7,7 +7,8 @@
 #include "logger.h"
 #include "text_color.h"
 
-FILE *LogFile = NULL;
+FILE   *LogFile = NULL;
+size_t  DefaultTabNum = 1;
 
 FILE *OpenLog(const char *const logfile_name, const char *const style_preamble)
 {
@@ -62,7 +63,8 @@ void LogPrint(const char *const file, const int line, const char *const func, Lo
     va_start(args_console, format);
     va_start(args_file,    format);
 
-    ON_LOGS(fprintf(LogFile, DEFAULT_TAB));
+    for (size_t i = 0; i < DefaultTabNum; i++)
+        ON_LOGS(fprintf(LogFile, DEFAULT_TAB));
 
     switch (log_type)
     {

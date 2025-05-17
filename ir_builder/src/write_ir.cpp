@@ -35,10 +35,6 @@ IrFuncRes PrintIrBlock(IrBlock *block, FILE *dest_file)
     const char *const block_name     = block->block_type_info->debug_name;
     const char *const operation_name = block->operation_info->debug_name;
 
-    fprintf(stderr, "ret_val_type = '%d', operand1_type = '%d', operand2_type = '%d'\n", block->ret_operand.type, block->operand_1.type, block->operand_2.type);
-    fprintf(stderr, "ret_val_name = '%s', operand1_name = '%s', operand2_name = '%s'\n\n", GetOperandName(block->ret_operand), GetOperandName(block->operand_1), GetOperandName(block->operand_2));
-
-
     if (!IS_LABEL_BLOCK_(block))
         fprintf(dest_file, "\t");
 

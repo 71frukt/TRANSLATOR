@@ -31,16 +31,16 @@ const size_t NODE_TYPES_COUNT = 9;
 
 enum NodeType
 {
-    NUM,
-    VAR,
-    FUNC,
-    VAR_OR_FUNC,        // is set for variable or function names during parsing. After lexical analysis, it is set to VAR or FUNC.
-    MATH_OP,
-    KEY_WORD,
-    MANAGER,
-    NEW_BLOCK,
+    NODE_NUM,
+    NODE_VAR,
+    NODE_FUNC,
+    NODE_VAR_OR_FUNC,        // is set for variable or function names during parsing. After lexical analysis, it is set to NODE_VAR or NODE_FUNC.
+    NODE_MATH_OP,
+    NODE_KEY_WORD,
+    NODE_MANAGER,
+    NODE_NEW_BLOCK,
 
-    POISON_TYPE,
+    NODE_POISON_TYPE,
 };
 
 struct ProperName
@@ -147,10 +147,10 @@ bool        OpNodeIsCommutativity   (Node *op_node);
 void        SyntaxError             (Tree *tree, Node *cur_node, const char *error, const char *file, int line, const char *func);
 
 
-#define TREE_NODE_IS_INIT(node_)  (node_->type == KEY_WORD && (node_->val.key_word->name == TREE_INT_INIT || node_->val.key_word->name == TREE_DOUBLE_INIT))
-#define TREE_NODE_IS_BOOL(node_)  (node_->type == MATH_OP && (node_->val.math_op->num == TREE_BOOL_EQ || node_->val.math_op->num == TREE_BOOL_NEQ || node_->val.math_op->num == TREE_BOOL_GREATER    || node_->val.math_op->num == TREE_BOOL_LOWER       \
+#define TREE_NODE_IS_INIT(node_)  (node_->type == NODE_KEY_WORD && node_->val.key_word->name == TREE_INIT)
+#define TREE_NODE_IS_BOOL(node_)  (node_->type == NODE_MATH_OP && (node_->val.math_op->num == TREE_BOOL_EQ || node_->val.math_op->num == TREE_BOOL_NEQ || node_->val.math_op->num == TREE_BOOL_GREATER    || node_->val.math_op->num == TREE_BOOL_LOWER       \
                                                                                                                                                   || node_->val.math_op->num == TREE_BOOL_GREATER_EQ || node_->val.math_op->num == TREE_BOOL_LOWER_EQ))
-#define TREE_NODE_IS_ASSIGN(node_)  (node_->type == KEY_WORD && (node_->val.key_word->name == TREE_ASSIGN));
+#define TREE_NODE_IS_ASSIGN(node_)  (node_->type == NODE_KEY_WORD && (node_->val.key_word->name == TREE_ASSIGN));
 
 
 #define SYNTAX_ERROR(tree, cur_token, error)  SyntaxError(tree, cur_token, error, __FILE__, __LINE__, __func__)

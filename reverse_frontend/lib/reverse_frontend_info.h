@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "../../tree/tree_lib.h"
+#include "tree_lib.h"
 
 #define REFRONT_FILE_NAME  "../../refront.txt"
 
@@ -33,8 +33,7 @@ const KeyWordReverseFrontendInfo KeyWordReverseFrontendInfos[KEY_WORDS_NUM] =
     { TREE_VAR_T_INDICATOR,  ReverseFrontVarT     },
     { TREE_FUNC_T_INDICATOR, ReverseFrontFuncT    },
     { TREE_FUNC_CALL,        ReverseFrontChildren },
-    { TREE_INT_INIT,         ReverseFrontInit     },
-    { TREE_DOUBLE_INIT,      ReverseFrontInit     },
+    { TREE_INIT,             ReverseFrontInit     },
     { TREE_NEW_EXPR,         ReverseFrontNewExpr  },
     { TREE_COMMA,            ReverseFrontendComma },
     { TREE_NEW_FUNC,         ReverseFrontChildren },

@@ -18,7 +18,7 @@ void CheckFuncsValidity(Tree *tree, Node *cur_node)
     if (cur_node == NULL)
         return;
 
-    if (cur_node->type == KEY_WORD && cur_node->val.key_word->name == TREE_FUNC_T_INDICATOR)
+    if (cur_node->type == NODE_KEY_WORD && cur_node->val.key_word->name == TREE_FUNC_T_INDICATOR)
     {
         ProperName *func_name = cur_node->left->val.prop_name;
 

@@ -171,8 +171,7 @@ enum KeyWord_enum
     TREE_VAR_T_INDICATOR,
     TREE_FUNC_T_INDICATOR,
     TREE_FUNC_CALL,
-    TREE_INT_INIT,
-    TREE_DOUBLE_INIT,
+    TREE_INIT,
     TREE_NEW_EXPR,
     TREE_COMMA,
     TREE_NEW_FUNC,
@@ -191,15 +190,14 @@ struct KeyWord
     const char         *real_symbol;
 };
 
-const int KEY_WORDS_NUM = 14;
+const int KEY_WORDS_NUM = 13;
 
 // const KeyWord KeyWords[KEY_WORDS_NUM] = 
 // {
 //     { TREE_VAR_T_INDICATOR,  ""        , "var_t"     },
 //     { TREE_FUNC_T_INDICATOR, ""        , "func_t"    },
 //     { TREE_FUNC_CALL,        ""        , "call"      },
-//     { TREE_INT_INIT,         "целый"   , "int"       },
-//     { TREE_DOUBLE_INIT,      "дабл"    , "double"    },
+//     { TREE_INIT,         "целый"   , "int"       },
 //     { TREE_NEW_EXPR,         "хой"     , "new_line"  },
 //     { TREE_COMMA,            "вместе"  , "param"     },
 //     { TREE_NEW_FUNC,         ""        , "new_func"  },
@@ -216,8 +214,7 @@ const KeyWord KeyWords[KEY_WORDS_NUM] =
     { TREE_VAR_T_INDICATOR,  "",      "var_t"     },
     { TREE_FUNC_T_INDICATOR, "",      "func_t"    },
     { TREE_FUNC_CALL,        "",      "call"      },
-    { TREE_INT_INIT,         "инт",   "int"       },
-    { TREE_DOUBLE_INIT,      "дабл",  "double"    },
+    { TREE_INIT,             "инт",   "int"       },
     { TREE_NEW_EXPR,         ";",     "new_line"  },
     { TREE_COMMA,            ",",     "param"     },
     { TREE_NEW_FUNC,         "",      "new_func"  },

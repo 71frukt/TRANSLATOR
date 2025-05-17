@@ -66,7 +66,7 @@ Node *MakeAndLinkNodes(FILE *source, Tree *tree)
 
 // fprintf(stderr, "token = '%s'\n", cur_token);
 
-    Node *new_node = NewNode(tree, POISON_TYPE, {}, NULL, NULL);
+    Node *new_node = NewNode(tree, NODE_POISON_TYPE, {}, NULL, NULL);
 
     GetNodeInfoBySymbol(cur_token, tree, new_node, REAL_CODE_MODE);
 
@@ -83,11 +83,11 @@ Node *MakeAndLinkNodes(FILE *source, Tree *tree)
     if (fscanf(source, "%s", cur_token) != 1 || strcmp(cur_token, ")") != 0)
         fprintf(stderr, "Expected ')' after '%s'\n", cur_token);
 
-    if (new_node->type == KEY_WORD && new_node->val.key_word->name == TREE_FUNC_T_INDICATOR)
-        new_node->left->type = FUNC;
+    if (new_node->type == NODE_KEY_WORD && new_node->val.key_word->name == TREE_FUNC_T_INDICATOR)
+        new_node->left->type = NODE_FUNC;
     
-    else if (new_node->type == KEY_WORD && new_node->val.key_word->name == TREE_VAR_T_INDICATOR)
-        new_node->left->type = VAR;
+    else if (new_node->type == NODE_KEY_WORD && new_node->val.key_word->name == TREE_VAR_T_INDICATOR)
+        new_node->left->type = NODE_VAR;
 
     return new_node;
 }

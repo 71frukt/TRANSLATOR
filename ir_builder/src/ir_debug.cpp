@@ -6,8 +6,6 @@
 
 static const char *GetIrBlockDumpName (const IrBlock   *const block);
 
-extern FILE *LogFile;
-
 int IrVerify(const IR_struct *ir)
 {
     int res_err = IR_OK;
@@ -56,18 +54,27 @@ void IrDump(const IR_struct *ir)
     log(LOG, "IR [%p]\n", ir);
     log(LOG, "{\n");
 
-    log(LOG, "\tsize     = %ld\n", ir->size);    
-    log(LOG, "\tcapacity = %ld\n", ir->capacity);    
+    DefaultTabNum++;
 
-    log(LOG, "\tBlocks [%p]:\n", ir->blocks);
+    log(LOG, "size     = %ld\n", ir->size);    
+    log(LOG, "capacity = %ld\n", ir->capacity);    
+
+    log(LOG, "IR code [%p]:\n\n", ir->blocks);
+    log(LOG, "---------------------- CODE --------------------------------------\n");
     
     IrBlock *blocks = ir->blocks;
     
     for (size_t i = 0; i < ir->size; i++)
     {
+        log(LOG, "");
         PrintIrBlock(blocks + i, LogFile);   
     }
-    BlocksDump_tables(ir);
+
+    log(LOG, "------------------------------------------------------------------\n\n");
+
+    DefaultTabNum--;
+
+    log(LOG, "\n");
     log(LOG, "}\n\n\n");
 }
 

@@ -73,7 +73,7 @@ void TreeNamesTablesDtor(Tree *tree)
     {
         Node *cur_node = tree->node_ptrs[i];
 
-        if (cur_node && cur_node->type == NEW_BLOCK)
+        if (cur_node && cur_node->type == NODE_NEW_BLOCK)
             NamesTableDtor(&cur_node->val.block.names_table);
     }
 }
@@ -139,7 +139,7 @@ void RemoveNode(Tree *tree, Node **node)
 
     (*node)->left    = NULL;
     (*node)->right   = NULL;
-    (*node)->type    = POISON_TYPE;
+    (*node)->type    = NODE_POISON_TYPE;
     (*node)->val.num = 0;
     *node = NULL;
 }
@@ -161,21 +161,21 @@ char *NodeValToStr(Node *node)
     if (node == NULL)
         sprintf(res_str, "NULL");
 
-    else if (node->type == NUM)
+    else if (node->type == NODE_NUM)
         sprintf(res_str, TREE_ELEM_PRINT_SPECIFIER, node->val.num);
     
-    else if (node->type == VAR || node->type == FUNC || node->type == VAR_OR_FUNC)
+    else if (node->type == NODE_VAR || node->type == NODE_FUNC || node->type == NODE_VAR_OR_FUNC)
         sprintf(res_str, "%s", node->val.prop_name->name);
 
-    else if (node->type == MATH_OP)
+    else if (node->type == NODE_MATH_OP)
         sprintf(res_str, "%s", node->val.math_op->real_symbol);
 
-    else if (node->type == MANAGER)
+    else if (node->type == NODE_MANAGER)
     {
         sprintf(res_str, "%s", node->val.manager->real_symbol);
     }
 
-    else if (node->type == KEY_WORD)
+    else if (node->type == NODE_KEY_WORD)
         sprintf(res_str, "%s", node->val.key_word->real_symbol);
 
     // else if (node->type == TYPE_INDICATOR)
@@ -187,10 +187,10 @@ char *NodeValToStr(Node *node)
     //         sprintf(res_str, "%s", VAR_TYPE_SYMBOL);
     // }
 
-    else if (node->type == NEW_BLOCK)
+    else if (node->type == NODE_NEW_BLOCK)
         sprintf(res_str, NEW_BLOCK_SYM);
 
-    else if (node->type == POISON_TYPE)
+    else if (node->type == NODE_POISON_TYPE)
         sprintf(res_str, "%s", POISON_SYMBOL);
 
     return res_str;
@@ -200,14 +200,14 @@ Node *TreeCopyPaste(Tree *source_tree, Tree *dest_tree, Node *coping_node)
 {
     Node *pasted_node = NULL;
 
-    if (coping_node->type == NUM || coping_node->type == VAR)
+    if (coping_node->type == NODE_NUM || coping_node->type == NODE_VAR)
     {
         pasted_node = NewNode(dest_tree, coping_node->type, coping_node->val, NULL, NULL);
     }
 
-    else if (coping_node->type == MATH_OP)
+    else if (coping_node->type == NODE_MATH_OP)
     {
-        pasted_node = NewNode(dest_tree, MATH_OP, coping_node->val, NULL, NULL);
+        pasted_node = NewNode(dest_tree, NODE_MATH_OP, coping_node->val, NULL, NULL);
 
         pasted_node->left  = TreeCopyPaste(source_tree, dest_tree, coping_node->left);
 
@@ -222,7 +222,7 @@ Node *TreeCopyPaste(Tree *source_tree, Tree *dest_tree, Node *coping_node)
 
 size_t GetTreeHeight(Node *cur_node)
 {
-    if (cur_node->type != MATH_OP)
+    if (cur_node->type != NODE_MATH_OP)
         return 1;
 
     size_t left_height  = GetTreeHeight(cur_node->left);
@@ -283,17 +283,17 @@ ProperName *NewNameInTable(NamesTable *table, char *name)
 void GetBlockNamesTable(Tree *tree, Node *block, Node *cur_node)
 {
     assert(block);
-    assert(block->type == NEW_BLOCK);
+    assert(block->type == NODE_NEW_BLOCK);
 
     NamesTable *table = &block->val.block.names_table;
 
     if (cur_node == NULL)
         return;
 
-    if (cur_node->type == NEW_BLOCK)
+    if (cur_node->type == NODE_NEW_BLOCK)
         MakeNamesTablesForBlocks(tree, cur_node);
 
-    else if (cur_node->type == VAR)
+    else if (cur_node->type == NODE_VAR)
     {
         ProperName *cur_name = FindNameInBlock(block, cur_node->val.prop_name->name);
         // fprintf(stderr, "use of inited var named '%s', num = %lu\n", cur_name->name, cur_name->number);
@@ -310,7 +310,7 @@ void GetBlockNamesTable(Tree *tree, Node *block, Node *cur_node)
     else if (TREE_NODE_IS_INIT(cur_node))
     {
         Node *named_node = cur_node->left->left;
-        assert(named_node->type == VAR || named_node->type == FUNC);
+        assert(named_node->type == NODE_VAR || named_node->type == NODE_FUNC);
 
         ProperName *cur_name = FindNameInBlock(block, named_node->val.prop_name->name);
         // fprintf(stderr, "use of inited var named '%s', num = %lu\n", cur_name->name, cur_name->number);
@@ -319,7 +319,7 @@ void GetBlockNamesTable(Tree *tree, Node *block, Node *cur_node)
         {
             char error[ERROR_NAME_LEN] = {};
 
-            if (named_node->type == VAR)
+            if (named_node->type == NODE_VAR)
                 sprintf(error, "Redeclared of variable '%s'", cur_name->name);
 
             else
@@ -328,7 +328,7 @@ void GetBlockNamesTable(Tree *tree, Node *block, Node *cur_node)
             SYNTAX_ERROR(tree, named_node, error);
         }
 
-        if (named_node->type == VAR)
+        if (named_node->type == NODE_VAR)
             named_node->val.prop_name = NewNameInTable(table, named_node->val.prop_name->name);
 
         else
@@ -339,7 +339,7 @@ void GetBlockNamesTable(Tree *tree, Node *block, Node *cur_node)
         GetBlockNamesTable(tree, block, cur_node->right);
     }
 
-    else  //if (cur_node->type == KEY_WORD && cur_node->val.key_word->name == TREE_NEW_EXPR)
+    else  //if (cur_node->type == NODE_KEY_WORD && cur_node->val.key_word->name == TREE_NEW_EXPR)
     {
         GetBlockNamesTable(tree, block, cur_node->left);
         GetBlockNamesTable(tree, block, cur_node->right);
@@ -353,7 +353,7 @@ void MakeNamesTablesForBlocks(Tree *tree, Node *cur_node)
     if (cur_node == NULL)
         return;
 
-    if (cur_node->type == KEY_WORD && cur_node->val.key_word->name == TREE_NEW_FUNC)
+    if (cur_node->type == NODE_KEY_WORD && cur_node->val.key_word->name == TREE_NEW_FUNC)
     {
         Node *block_node = cur_node->left->right;
 
@@ -378,7 +378,7 @@ void MakeNamesTablesForBlocks(Tree *tree, Node *cur_node)
         }
     }
 
-    else if (cur_node->type == NEW_BLOCK)
+    else if (cur_node->type == NODE_NEW_BLOCK)
     {
         cur_node->val.block.prev_block = tree->cur_block;
 
@@ -414,25 +414,25 @@ Node *GetNodeInfoBySymbol(char *sym, Tree *tree, Node *cur_node, SymbolMode mode
 
     if (math_op != NULL)
     {
-        cur_node->type        = MATH_OP;
+        cur_node->type        = NODE_MATH_OP;
         cur_node->val.math_op = math_op;
     }
 
     else if (key_word != NULL)
     {
-        cur_node->type         = KEY_WORD;
+        cur_node->type         = NODE_KEY_WORD;
         cur_node->val.key_word = key_word;
 
     }
     else if (manager != NULL)
     {
-        cur_node->type        = MANAGER;
+        cur_node->type        = NODE_MANAGER;
         cur_node->val.manager = manager;
     }
 
     else if (strcmp(sym, NEW_BLOCK_SYM) == 0)
     {
-        cur_node->type = NEW_BLOCK;
+        cur_node->type = NODE_NEW_BLOCK;
     }
 
     else if (strcmp(sym, "NULL") == 0)
@@ -442,14 +442,14 @@ Node *GetNodeInfoBySymbol(char *sym, Tree *tree, Node *cur_node, SymbolMode mode
 
     else if (isdigit(*sym))
     {
-        cur_node->type = NUM;
+        cur_node->type = NODE_NUM;
         if(sscanf(sym, TREE_ELEM_SCANF_SPECIFIER, &cur_node->val.num) != 1)
             fprintf(stderr, "invalid val of number in GetNodeInfoBySymbol()\n");
     }
 
     else
     {
-        cur_node->type = VAR_OR_FUNC;
+        cur_node->type = NODE_VAR_OR_FUNC;
 
         ProperName *prop_name = FindNameInTable(&tree->names_table, sym);
 
@@ -491,8 +491,8 @@ bool SubtreeContainsType(Node *cur_node, NodeType type)
 
         bool right_subtree_cont_type = false;
 
-        // if (cur_node->type == MATH_OP && GetOperationByNode(cur_node)->type == BINARY)
-        if (cur_node->type == MATH_OP && cur_node->val.math_op->type == BINARY)       
+        // if (cur_node->type == NODE_MATH_OP && GetOperationByNode(cur_node)->type == BINARY)
+        if (cur_node->type == NODE_MATH_OP && cur_node->val.math_op->type == BINARY)       
             right_subtree_cont_type = SubtreeContainsType(cur_node->right, type);
 
         return (left_subtree_cont_type || right_subtree_cont_type);
@@ -523,7 +523,7 @@ bool OpNodeIsCommutativity(Node *op_node)
 {
     assert(op_node);
 
-    if (op_node->type == MATH_OP && (op_node->val.math_op->num == TREE_ADD || op_node->val.math_op->num == TREE_MUL))
+    if (op_node->type == NODE_MATH_OP && (op_node->val.math_op->num == TREE_ADD || op_node->val.math_op->num == TREE_MUL))
         return true;
     
     else return false;
@@ -532,18 +532,18 @@ bool OpNodeIsCommutativity(Node *op_node)
 // bool TREE_NODE_IS_INIT(Node *node)
 // {
 //     assert(node);
-//     return (node->type == KEY_WORD && (node->val.key_word->name == TREE_INT_INIT || node->val.key_word->name == TREE_DOUBLE_INIT));
+//     return (node->type == NODE_KEY_WORD && (node->val.key_word->name == TREE_INIT || node->val.key_word->name == TREE_DOUBLE_INIT));
 // }
 
 // bool IsAssign(Node *node)
 // {
 //     assert(node);
-//     return (node->type == KEY_WORD && (node->val.key_word->name == TREE_ASSIGN));
+//     return (node->type == NODE_KEY_WORD && (node->val.key_word->name == TREE_ASSIGN));
 // }
 
 // bool TREE_NODE_IS_BOOL(Node *node)
 // {
 //     const MathOperation *math_op = node->val.math_op;
-//     return (node->type == MATH_OP && (math_op->num == TREE_BOOL_EQ || math_op->num == TREE_BOOL_NEQ || math_op->num == TREE_BOOL_GREATER    || math_op->num == TREE_BOOL_LOWER
+//     return (node->type == NODE_MATH_OP && (math_op->num == TREE_BOOL_EQ || math_op->num == TREE_BOOL_NEQ || math_op->num == TREE_BOOL_GREATER    || math_op->num == TREE_BOOL_LOWER
 //                                                                                                     || math_op->num == TREE_BOOL_GREATER_EQ || math_op->num == TREE_BOOL_LOWER_EQ));
 // }

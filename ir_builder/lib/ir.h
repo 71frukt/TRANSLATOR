@@ -108,57 +108,19 @@ enum PrintIrBlockMode
 };
 
 
-// const size_t IR_OP_BLOCK_TYPES_COUNT = 9;
 
-// const IrBlockTypeInfo IR_BLOCK_TYPES_INFO[IR_OP_BLOCK_TYPES_COUNT] =         // use assert for cmp IrBlockType getting array elem!
-// {
-//     { IR_BLOCK_TYPE_CALL_FUNCTION  ON_IR_DEBUG( , "call_func"     ) },
-//     { IR_BLOCK_TYPE_FUNCTION_BODY  ON_IR_DEBUG( , "func"          ) },
-//     { IR_BLOCK_TYPE_COND_JUMP      ON_IR_DEBUG( , "cond_jump"     ) },
-//     { IR_BLOCK_TYPE_ASSIGNMENT     ON_IR_DEBUG( , "assignment"    ) },
-//     { IR_BLOCK_TYPE_OPERATION      ON_IR_DEBUG( , "operation"     ) },
-//     { IR_BLOCK_TYPE_RETURN         ON_IR_DEBUG( , "return"        ) },
-//     { IR_BLOCK_TYPE_LOCAL_LABEL    ON_IR_DEBUG( , "local_label"   ) },
-//     { IR_BLOCK_TYPE_SYSCALL        ON_IR_DEBUG( , "syscall"       ) },
-//     { IR_BLOCK_TYPE_INVALID        ON_IR_DEBUG( , "block_invalid" ) },
-// };
-
-
-
-
-// const size_t IR_OPERATIONS_COUNT = 12;
-
-// const IrOperationTypeInfo IR_OPERATIONS_INFO[IR_OPERATIONS_COUNT] =         // use assert for cmp IrBlockType getting array elem!
-// {
-//     { IR_OPERATION_TYPE_SUM                ON_IR_DEBUG( , "+"          ) },            // ON_IR_DEBUG( , "op_sum"     ) },
-//     { IR_OPERATION_TYPE_SUB                ON_IR_DEBUG( , "-"          ) },            // ON_IR_DEBUG( , "op_sub"     ) },
-//     { IR_OPERATION_TYPE_MUL                ON_IR_DEBUG( , "*"          ) },            // ON_IR_DEBUG( , "op_mul"     ) },
-//     { IR_OPERATION_TYPE_DIV                ON_IR_DEBUG( , "/"          ) },            // ON_IR_DEBUG( , "op_div"     ) },
-//     { IR_OPERATION_TYPE_POW                ON_IR_DEBUG( , "^"          ) },            // ON_IR_DEBUG( , "op_pow"     ) },
-//     { IR_OPERATION_TYPE_EQ                 ON_IR_DEBUG( , "=="         ) },            // ON_IR_DEBUG( , "op_eq"      ) },
-//     { IR_OPERATION_TYPE_NEQ                ON_IR_DEBUG( , "!="         ) },            // ON_IR_DEBUG( , "op_neq"     ) },
-//     { IR_OPERATION_TYPE_LESS               ON_IR_DEBUG( , "<"          ) },            // ON_IR_DEBUG( , "op_less"    ) },
-//     { IR_OPERATION_TYPE_LESSEQ             ON_IR_DEBUG( , "<="         ) },            // ON_IR_DEBUG( , "op_lesseq"  ) },
-//     { IR_OPERATION_TYPE_GREAT              ON_IR_DEBUG( , ">"          ) },            // ON_IR_DEBUG( , "op_great"   ) },
-//     { IR_OPERATION_TYPE_GREATEQ            ON_IR_DEBUG( , ">="         ) },            // ON_IR_DEBUG( , "op_greateq" ) },
-//     { IR_OPERATION_TYPE_NONE  ON_IR_DEBUG( , "op_invalid" ) }             // ON_IR_DEBUG( , "op_INVALID" ) }
-// };
-
-
-
-IrFuncRes IrCtor            (IR_struct *ir, size_t start_capacity);
+IrFuncRes IrCtor            (IR_struct *ir, const size_t start_capacity);
 IrFuncRes IrDtor            (IR_struct *ir);
-IrFuncRes IrRecalloc        (IR_struct *ir, size_t new_capacity);
+IrFuncRes IrRecalloc        (IR_struct *ir, const size_t new_capacity);
 // IrFuncRes BuildIrByTreeNode (IR_struct *ir, Tree *code_tree, Node *cur_node);
 
-IrOperand GetOperand(IR_struct *ir, Tree *code_tree, Node *cur_node);
+IrOperand NodeToIrOperand(IR_struct *ir, const Node *const cur_node);
 
 IrBlock *IrNewBlock(IR_struct *ir, const IrBlockType block_type, const IrOperationType operation_type, 
-    const IrOperand operand_1, const IrOperand operand_2, const IrOperand ret_operand);
+                    const IrOperand ret_operand, const IrOperand operand_1, const IrOperand operand_2);
 
-IrBlock *IrBuildAssignBlock(IR_struct *ir, IrOperand operand_1, IrOperand operand_2 /*, IrOperand ret_operand*/);
 
-const IrBlockTypeInfo *GetIrBlockTypeInfo (IrBlockType block_type);
+const IrBlockTypeInfo     *GetIrBlockTypeInfo     (IrBlockType     block_type);
 const IrOperationTypeInfo *GetIrOperationTypeInfo (IrOperationType operation_type);
 
 

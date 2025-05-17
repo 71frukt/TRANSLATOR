@@ -38,7 +38,7 @@ void PrintStartRegisterValues(FILE *dest_file)
 void PrintMathOpAsm(Node *math_op, FILE *dest_file)
 {
     assert(math_op);
-    assert(math_op->type == MATH_OP);
+    assert(math_op->type == NODE_MATH_OP);
     assert(dest_file);
 
     PrintAsmCodeByNode(math_op->left,  dest_file);
@@ -55,7 +55,7 @@ void PrintMathOpAsm(Node *math_op, FILE *dest_file)
 void PrintVarTAsm(Node *var_t_node, FILE *dest_file)
 {
     assert(var_t_node);
-    assert(var_t_node->type == KEY_WORD && var_t_node->val.key_word->name == TREE_VAR_T_INDICATOR);
+    assert(var_t_node->type == NODE_KEY_WORD && var_t_node->val.key_word->name == TREE_VAR_T_INDICATOR);
 
     fprintf(dest_file, "%s [AX + %lu]\n", AsmOperations[PUSH_ASM].sym, var_t_node->left->val.prop_name->number);
 }
@@ -89,12 +89,12 @@ void PrintInitAsm(Node *init_node, FILE *dest_file)
 {
     assert(init_node);
     assert(dest_file);
-    assert(init_node->type == KEY_WORD && (init_node->val.key_word->name == TREE_INT_INIT || init_node->val.key_word->name == TREE_DOUBLE_INIT));
+    assert(init_node->type == NODE_KEY_WORD && init_node->val.key_word->name == TREE_INIT);
 
     Node *prop_name_node = init_node->left->left;
-    assert(prop_name_node->type == VAR || prop_name_node->type == FUNC);
+    assert(prop_name_node->type == NODE_VAR || prop_name_node->type == NODE_FUNC);
 
-    if(init_node->left->type == KEY_WORD && init_node->left->val.key_word->name == TREE_VAR_T_INDICATOR)     // переменная
+    if(init_node->left->type == NODE_KEY_WORD && init_node->left->val.key_word->name == TREE_VAR_T_INDICATOR)     // переменная
     {
         fprintf(dest_file, "\t%c инициализация переменной '%s'   \n", COMMENT_SYMBOL, prop_name_node->val.prop_name->name);    
 
@@ -151,7 +151,7 @@ void PrintCallAsm(Node *call_node, FILE *dest_file)
 void PrintPassArgsInCall(Node *param_node , FILE *dest_file)
 {
     assert(param_node);
-    assert(param_node->type == KEY_WORD &&  param_node->val.key_word->name == TREE_COMMA);
+    assert(param_node->type == NODE_KEY_WORD &&  param_node->val.key_word->name == TREE_COMMA);
     assert(dest_file);
 
     fprintf(dest_file, "\t%c передача аргументов в функцию \n", COMMENT_SYMBOL);
@@ -166,8 +166,8 @@ void PrintAssignAsm(Node *assign_node, FILE *dest_file)
 {
     assert(assign_node);
     assert(dest_file);
-    assert(assign_node->left->type == KEY_WORD && assign_node->left->val.key_word->name == TREE_VAR_T_INDICATOR &&
-           assign_node->left->left->type == VAR);
+    assert(assign_node->left->type == NODE_KEY_WORD && assign_node->left->val.key_word->name == TREE_VAR_T_INDICATOR &&
+           assign_node->left->left->type == NODE_VAR);
 
     Node *var_node = assign_node->left->left;
 
@@ -183,7 +183,7 @@ void PrintIfAsm(Node *if_node, FILE *dest_file)
 {
     assert(if_node);
     assert(dest_file);
-    assert(if_node->left->type == MATH_OP && TREE_NODE_IS_BOOL(if_node->left));
+    assert(if_node->left->type == NODE_MATH_OP && TREE_NODE_IS_BOOL(if_node->left));
 
     fprintf(dest_file, "\t%c начало цикла if\n", COMMENT_SYMBOL);
 
@@ -204,7 +204,7 @@ void PrintWhileAsm(Node *while_node, FILE *dest_file)
 {
     assert(while_node);
     assert(dest_file);
-    assert(while_node->left->type == MATH_OP && TREE_NODE_IS_BOOL(while_node->left));
+    assert(while_node->left->type == NODE_MATH_OP && TREE_NODE_IS_BOOL(while_node->left));
 
     fprintf(dest_file, "\t%c начало цикла while\n", COMMENT_SYMBOL);
 
@@ -257,18 +257,18 @@ void PrintAsmCodeByNode(Node *node, FILE *dest_file)
     assert(node);
     assert(dest_file);
 
-    if (node->type == NUM)
+    if (node->type == NODE_NUM)
         fprintf(dest_file, "%s " TREE_ELEM_PRINT_SPECIFIER "\n", AsmOperations[PUSH_ASM].sym, node->val.num);
 
-    if (node->type == MATH_OP)
+    if (node->type == NODE_MATH_OP)
         PrintMathOpAsm(node, dest_file);
     
-    else if (node->type == KEY_WORD)
+    else if (node->type == NODE_KEY_WORD)
     {
         KeyWordAsmInfos[node->val.key_word->name].PrintAsmCodeFunc(node, dest_file);
     }
 
-    else if (node->type == NEW_BLOCK)
+    else if (node->type == NODE_NEW_BLOCK)
         PrintAsmCodeByNode(node->left, dest_file);
 
     else

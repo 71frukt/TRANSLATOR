@@ -27,15 +27,15 @@ struct NodeGraphInfo
 
 const NodeGraphInfo GraphViewInfo[NODE_TYPES_COUNT] = 
 {
-    { NUM,         "skyblue",       "oval"    },
-    { VAR,         "aquamarine",    "square"  },
-    { FUNC,        "darkturquoise", "square"  },
-    { VAR_OR_FUNC, "red",           "square"  },
-    { MATH_OP,     "seagreen1",     "record"  },
-    { KEY_WORD,    "tan",           "egg"     },
-    { MANAGER,     "grey",          "oval"    },
-    { NEW_BLOCK,   "yellow",        "hexagon" },
-    { POISON_TYPE, "red",           "hexagon" }
+    { NODE_NUM,         "skyblue",       "oval"    },
+    { NODE_VAR,         "aquamarine",    "square"  },
+    { NODE_FUNC,        "darkturquoise", "square"  },
+    { NODE_VAR_OR_FUNC, "red",           "square"  },
+    { NODE_MATH_OP,     "seagreen1",     "record"  },
+    { NODE_KEY_WORD,    "tan",           "egg"     },
+    { NODE_MANAGER,     "grey",          "oval"    },
+    { NODE_NEW_BLOCK,   "yellow",        "hexagon" },
+    { NODE_POISON_TYPE, "red",           "hexagon" }
 };
 
 #endif

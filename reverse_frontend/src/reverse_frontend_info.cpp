@@ -11,7 +11,7 @@ void PrintNodeMySym(Node *node, FILE *dest_file)
     if (node == NULL)
         return;
 
-    else if (node->type == NEW_BLOCK)
+    else if (node->type == NODE_NEW_BLOCK)
     {
         fprintf(dest_file, "%s \n", Managers[OPEN_BLOCK_BRACKET].my_symbol);
         PrintNodeMySym(node->left, dest_file);
@@ -20,7 +20,7 @@ void PrintNodeMySym(Node *node, FILE *dest_file)
         PrintNodeMySym(node->right, dest_file);
     }
 
-    else if (node->type == MATH_OP)
+    else if (node->type == NODE_MATH_OP)
     {
         if (node->val.math_op->type == UNARY)
         {
@@ -36,13 +36,13 @@ void PrintNodeMySym(Node *node, FILE *dest_file)
         }
     }
 
-    else if (node->type == VAR || node->type == FUNC)
+    else if (node->type == NODE_VAR || node->type == NODE_FUNC)
         fprintf(dest_file, "%s ", node->val.prop_name->name);
     
-    else if (node->type == NUM)
+    else if (node->type == NODE_NUM)
         fprintf(dest_file, TREE_ELEM_PRINT_SPECIFIER " ", node->val.num);
 
-    else if (node->type == KEY_WORD)
+    else if (node->type == NODE_KEY_WORD)
     {
         KeyWordReverseFrontendInfos[node->val.key_word->name].reverse_frontend_func(node, dest_file);
     }
@@ -69,7 +69,7 @@ void ReverseFrontInit(Node *init_node, FILE *dest_file)
 
     PrintNodeMySym(init_node->left, dest_file);
 
-    if (init_node->left->type == KEY_WORD && init_node->left->val.key_word->name == TREE_VAR_T_INDICATOR && init_node->right != NULL)
+    if (init_node->left->type == NODE_KEY_WORD && init_node->left->val.key_word->name == TREE_VAR_T_INDICATOR && init_node->right != NULL)
         fprintf(dest_file, "%s ", KeyWords[TREE_ASSIGN].my_symbol);
 
     if (init_node->right != NULL)
@@ -80,7 +80,7 @@ void ReverseFrontNewExpr(Node *new_expr_node, FILE *dest_file)
 {
     PrintNodeMySym(new_expr_node->left, dest_file);
 
-    if (new_expr_node->left->type != KEY_WORD || (new_expr_node->left->val.key_word->name != TREE_IF && new_expr_node->left->val.key_word->name != TREE_WHILE))  // для if и while эта нода искусственная, её в исходном коде нет
+    if (new_expr_node->left->type != NODE_KEY_WORD || (new_expr_node->left->val.key_word->name != TREE_IF && new_expr_node->left->val.key_word->name != TREE_WHILE))  // для if и while эта нода искусственная, её в исходном коде нет
         fprintf(dest_file, "%s\n", KeyWords[TREE_NEW_EXPR].my_symbol);
     PrintNodeMySym(new_expr_node->right, dest_file);
 }

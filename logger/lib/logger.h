@@ -10,6 +10,9 @@
 
 #define DEFAULT_TAB           "\t"
 
+extern FILE   *LogFile;
+extern size_t DefaultTabNum;
+
 enum LogType
 {
     LOG,
