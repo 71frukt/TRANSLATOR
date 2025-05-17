@@ -60,19 +60,31 @@ void IrDump(const IR_struct *ir)
     log(LOG, "capacity = %ld\n", ir->capacity);    
 
     log(LOG, "IR code [%p]:\n\n", ir->blocks);
+
+    DefaultTabNum--;
     log(LOG, "---------------------- CODE --------------------------------------\n");
+    DefaultTabNum++;
     
     IrBlock *blocks = ir->blocks;
     
     for (size_t i = 0; i < ir->size; i++)
     {
-        log(LOG, "");
+        if (IS_LABEL_BLOCK_(blocks + i))
+        {
+            log(LOG, "\n");
+            DefaultTabNum--;
+            log(LOG, "");
+            DefaultTabNum++;
+        }
+        
+        else
+           log(LOG, "");
+
         PrintIrBlock(blocks + i, LogFile);   
     }
 
-    log(LOG, "------------------------------------------------------------------\n\n");
-
     DefaultTabNum--;
+    log(LOG, "------------------------------------------------------------------\n\n");
 
     log(LOG, "\n");
     log(LOG, "}\n\n\n");
@@ -128,38 +140,25 @@ static const char *GetIrBlockDumpName(const IrBlock *const block)
         return block->block_type_info->debug_name;
 }
 
+void LoadOperandRealName(IrOperand *named_operand, const Node *named_node)
+{
+    lassert(named_node, "");
+    lassert(named_node->type == NODE_FUNC || named_node->type == NODE_VAR, "");
+    snprintf(named_operand->comment_name, OPERAND_NAME_LEN, "%s", named_node->val.prop_name->name);
+}
 
-    // <div class="tables-row">
-    //     <!-- Таблица 1 -->
-    //     <div class="table-with-caption">
-    //         <div class="table-caption">[0] = 12345678912345</div>
-    //         <table class="vertical-table">
-    //             <tr><td></td></tr>
-    //             <tr><td></td></tr>
-    //             <tr><td></td></tr>
-    //             <tr><td></td></tr>
-    //         </table>
-    //     </div>
-        
-    //     <!-- Таблица 2 -->
-    //     <div class="table-with-caption">
-    //         <div class="table-caption">[1] = 12345678912345</div>
-    //         <table class="vertical-table">
-    //             <tr><td></td></tr>
-    //             <tr><td></td></tr>
-    //             <tr><td></td></tr>
-    //             <tr><td></td></tr>
-    //         </table>
-    //     </div>
-        
-    //     <!-- Таблица 3 -->
-    //     <div class="table-with-caption">
-    //         <div class="table-caption">struct C</div>
-    //         <table class="vertical-table">
-    //             <tr><td></td></tr>
-    //             <tr><td></td></tr>
-    //             <tr><td></td></tr>
-    //             <tr><td></td></tr>
-    //         </table>
-    //     </div>
-    // </div>
+void MakeBlockComment(IrBlock *block)
+{
+    char *comment = block->comment;
+
+    switch (block->block_type_info->type)
+    {
+    case IR_BLOCK_TYPE_ASSIGNMENT:
+        if (block->operand_1.type == IR_OPERAND_TYPE_VAR)
+            snprintf(comment, COMMENT_LEN, "int %s", block->operand_1.comment_name);
+        break;
+    
+    default:
+        break;
+    }
+}

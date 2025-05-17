@@ -37,4 +37,14 @@
 #define IR_DUMP(ir_ptr_)
 #endif
 
+
+#define IR_ERROR_HANDLE(ir_func) do                                                                                         \
+{                                                                                                                           \
+    IrFuncRes func_res = ir_func;                                                                                           \
+    if (func_res != IR_FUNC_OK)                                                                                             \
+    {                                                                                                                       \
+        log(ERROR, "Failed " #ir_func);                                                                                     \
+    }                                                                                                                       \
+} while (0)
+
 #endif /*IR_DEBUG_MACROSES_H*/

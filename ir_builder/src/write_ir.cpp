@@ -4,10 +4,6 @@
 #include "ir.h"
 #include "logger.h"
 
-#define IS_LABEL_BLOCK_(block_)  (block_->block_type_info->type == IR_BLOCK_TYPE_FUNCTION_BODY || block_->block_type_info->type == IR_BLOCK_TYPE_LOCAL_LABEL)
-
-
-
 
 FILE *GetInputAST(const int argc, const char *argv[])
 {
@@ -35,9 +31,6 @@ IrFuncRes PrintIrBlock(IrBlock *block, FILE *dest_file)
     const char *const block_name     = block->block_type_info->debug_name;
     const char *const operation_name = block->operation_info->debug_name;
 
-    if (!IS_LABEL_BLOCK_(block))
-        fprintf(dest_file, "\t");
-
     fprintf(dest_file, "%s(", block_name);
 
     bool is_first = true;
@@ -64,7 +57,7 @@ IrFuncRes PrintIrBlock(IrBlock *block, FILE *dest_file)
     if (block->block_type_info->type == IR_BLOCK_TYPE_LOCAL_LABEL)
     {
         PRINT_COMMA_IF_NEED;
-        fprintf(dest_file, "label%lu", block->label.local);
+        fprintf(dest_file, "label_%lu", block->label.local);
     }
     // if (IS_LABEL_BLOCK_(block))
     // {
@@ -84,9 +77,16 @@ IrFuncRes PrintIrBlock(IrBlock *block, FILE *dest_file)
         fprintf(dest_file, "%s", GetOperandName(block->operand_2));
     }
 
-    fprintf(dest_file, ")\t \n");
+    fprintf(dest_file, ")");
 
-    if (block->block_type_info->type == IR_BLOCK_TYPE_RETURN)
+    ON_IR_DEBUG(
+    if (block->comment[0] != '\0')
+        fprintf(dest_file, "\t\t# %s", block->comment);
+    )
+
+    fprintf(dest_file, "\n");
+
+    if (block->block_type_info->type == IR_BLOCK_TYPE_RETURN || block->block_type_info->type == IR_BLOCK_TYPE_COND_JUMP)
         fprintf(dest_file, "\n");
 
     return IR_FUNC_OK;
@@ -106,10 +106,10 @@ const char *GetOperandName(const IrOperand operand)
     switch (operand.type)
     {
         case IR_OPERAND_TYPE_NUM         : snprintf(operand_name, OPERAND_NAME_MAX_LEN, TREE_ELEM_PRINT_SPECIFIER, val.num);                         break;
-        case IR_OPERAND_TYPE_TMP         : snprintf(operand_name, OPERAND_NAME_MAX_LEN, "tmp%lu",       val.tmp);                                    break;
-        case IR_OPERAND_TYPE_VAR         : snprintf(operand_name, OPERAND_NAME_MAX_LEN, "var%lu",       val.var);                                    break;
-        case IR_OPERAND_TYPE_ARG         : snprintf(operand_name, OPERAND_NAME_MAX_LEN, "arg%lu",       val.arg);                                    break;
-        case IR_OPERAND_TYPE_LOCAL_LABEL : snprintf(operand_name, OPERAND_NAME_MAX_LEN, "label%lu",     val.label.local);                            break;
+        case IR_OPERAND_TYPE_TMP         : snprintf(operand_name, OPERAND_NAME_MAX_LEN, "tmp_%lu",       val.tmp);                                    break;
+        case IR_OPERAND_TYPE_VAR         : snprintf(operand_name, OPERAND_NAME_MAX_LEN, "var_%lu",       val.var);                                    break;
+        case IR_OPERAND_TYPE_ARG         : snprintf(operand_name, OPERAND_NAME_MAX_LEN, "arg_%lu",       val.arg);                                    break;
+        case IR_OPERAND_TYPE_LOCAL_LABEL : snprintf(operand_name, OPERAND_NAME_MAX_LEN, "label_%lu",     val.label.local);                            break;
         case IR_OPERAND_TYPE_FUNC_LABEL  : snprintf(operand_name, OPERAND_NAME_MAX_LEN, "func_%lu_%lu", val.label.func.num, val.label.func.arg_cnt); break;
 
         case IR_OPERAND_TYPE_NONE        : snprintf(operand_name, OPERAND_NAME_MAX_LEN, "none_operand");                                             break;

@@ -23,14 +23,8 @@ int IrVerify(const IR_struct *ir);
 void IrDump (const IR_struct *ir);
 void BlocksDump_tables (const IR_struct *ir);
 
-#define IR_ERROR_HANDLE(ir_func) do                                                                                         \
-{                                                                                                                           \
-    IrFuncRes func_res = ir_func;                                                                                           \
-    if (func_res != IR_FUNC_OK)                                                                                             \
-    {                                                                                                                       \
-        log(ERROR, "Failed " #ir_func);                                                                                     \
-    }                                                                                                                       \
-} while (0)
+void LoadOperandRealName(IrOperand *named_operand, const Node *named_node);
+void MakeBlockComment(IrBlock *block);
 
 
 #endif /*IR_DEBUG_H*/

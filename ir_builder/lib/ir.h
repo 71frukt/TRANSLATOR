@@ -8,6 +8,8 @@
 #include "ir_debug_macroses.h"
 
 const size_t START_IR_DATA_CAPACITY = 50;
+const size_t OPERAND_NAME_LEN       = 50;
+const size_t COMMENT_LEN            = 100;
 
 struct FuncLabel
 {
@@ -18,7 +20,7 @@ struct FuncLabel
 union Label
 {
     size_t local;
-    FuncLabel func;
+    FuncLabel  func;
 };
 
 union IrOperandVal
@@ -38,6 +40,10 @@ struct IrOperand
 {
     IrOperandType type;
     IrOperandVal  val;
+
+    ON_IR_DEBUG(
+    char comment_name[OPERAND_NAME_LEN];
+    )
 };
 
 struct IrBlockTypeInfo
@@ -60,6 +66,7 @@ struct IrOperationTypeInfo
     )
 };
 
+
 struct IrBlock
 {
     // IrBlockType     block_type;
@@ -73,6 +80,10 @@ struct IrBlock
     IrOperand operand_2;
 
     Label label;
+
+    ON_IR_DEBUG(
+    char comment[COMMENT_LEN];
+    )
 };
 
 struct ProperNamesCount
@@ -80,6 +91,7 @@ struct ProperNamesCount
     size_t tmp_count;
     size_t var_count;
     size_t func_count;
+    size_t local_label_count;
 };
 
 struct IR_struct
@@ -117,11 +129,12 @@ IrFuncRes IrRecalloc        (IR_struct *ir, const size_t new_capacity);
 IrOperand NodeToIrOperand(IR_struct *ir, const Node *const cur_node);
 
 IrBlock *IrNewBlock(IR_struct *ir, const IrBlockType block_type, const IrOperationType operation_type, 
-                    const IrOperand ret_operand, const IrOperand operand_1, const IrOperand operand_2);
+                    const IrOperand ret_operand, const IrOperand operand_1, const IrOperand operand_2, const Label label);
 
 
 const IrBlockTypeInfo     *GetIrBlockTypeInfo     (IrBlockType     block_type);
 const IrOperationTypeInfo *GetIrOperationTypeInfo (IrOperationType operation_type);
 
+#define IS_LABEL_BLOCK_(block_)  ((block_)->block_type_info->type == IR_BLOCK_TYPE_FUNCTION_BODY || (block_)->block_type_info->type == IR_BLOCK_TYPE_LOCAL_LABEL)
 
 #endif /*IR_H*/

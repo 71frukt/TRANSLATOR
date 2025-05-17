@@ -33,21 +33,22 @@ enum IrOperationType
 
 enum IrBlockType
 {
-    IR_BLOCK_TYPE_CALL_FUNCTION , // Call function                                       :
-    IR_BLOCK_TYPE_FUNCTION_BODY , // Function body description (serves as label as well) :
-    IR_BLOCK_TYPE_COND_JUMP     , // Conditional jump                                    :
-    IR_BLOCK_TYPE_ASSIGNMENT    , // Assignment                                          :
-    IR_BLOCK_TYPE_OPERATION     , // Operation                                           :
-    IR_BLOCK_TYPE_RETURN        , // Return                                              :
-    IR_BLOCK_TYPE_LOCAL_LABEL   , // Local label                                         :
-    IR_BLOCK_TYPE_SYSCALL       , // System function call                                :
+    IR_BLOCK_TYPE_CALL_FUNCTION ,
+    IR_BLOCK_TYPE_FUNCTION_BODY ,
+    IR_BLOCK_TYPE_COND_JUMP     ,
+    IR_BLOCK_TYPE_NEG_COND_JUMP ,
+    IR_BLOCK_TYPE_ASSIGNMENT    ,
+    IR_BLOCK_TYPE_OPERATION     ,
+    IR_BLOCK_TYPE_RETURN        ,
+    IR_BLOCK_TYPE_LOCAL_LABEL   ,
+    IR_BLOCK_TYPE_SYSCALL       ,
     IR_BLOCK_TYPE_INVALID       ,
 };
 
 ////                                               PYAM_IR table (PYAMIRT) for better understanding                              ////
 ////-----------------------------------------------------------------------------------------------------------------------------////
 // ||    Default name    ||     Return value    ||  Operation  ||     Label    ||     First Operand     ||    Second Operand    ||
-// ||  Call function     ||  Tmp                ||  None       ||  Func label  ||  None                 ||  None                ||
+// ||  Call function     ||  Tmp                ||  None       ||  None        ||  Func label           ||  None                ||
 // ||  Function body     ||  None               ||  None       ||  Func label  ||  Number of arguments  ||  None                ||
 // ||  Conditional jump  ||  None               ||  None       ||  None        ||  Local label          ||  Tmp                 ||
 // ||  Assignment        ||  Tmp or var         ||  None       ||  None        ||  Var or Tmp           ||  Var or Tmp or Num   ||
