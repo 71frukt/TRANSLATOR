@@ -1,6 +1,8 @@
 #ifndef IR_DEBUG_H
 #define IR_DEBUG_H
 
+#include <string.h>
+
 #include "ir.h"
 #include "logger.h"
 
@@ -27,4 +29,5 @@ void LoadOperandRealName(IrOperand *named_operand, const Node *named_node);
 void MakeBlockComment(IrBlock *block);
 
 
+#define AddBlockComment(block_, ...)  snprintf(block_->comment, COMMENT_LEN, __VA_ARGS__);
 #endif /*IR_DEBUG_H*/

@@ -5,14 +5,14 @@ USE_LOGS  ?= true
 
 
 #---------- archive libs ------------------------------------------------------------------
-ARCHIVES_NAMES = tree tree_saver logger pyam_ir
-ARCHIVES_DIRS  = ../tree ../tree_saver ../logger PYAM_IR
+ARCHIVES_NAMES = tree tree_saver logger
+ARCHIVES_DIRS  = ../tree ../tree_saver ../logger
 
 ARCHIVES_DEBUG_FLAGS = $(foreach project,  $(ARCHIVES_NAMES),-D $(shell echo $(project) | tr '[:lower:]' '[:upper:]')_DEBUG)  # FIXME USELESS ?
 ARCHIVE_NAMES_FLAGS  = $(addprefix -l,     $(ARCHIVES_NAMES))
 
-ARCHIVES_DIRS_INCLUDES    = ../tree/lib   ../tree_saver/lib   ../logger/lib   PYAM_IR/include
-ARCHIVES_DIRS_LIB_FOLDERS = ../tree/build ../tree_saver/build ../logger/build PYAM_IR
+ARCHIVES_DIRS_INCLUDES    = ../tree/lib   ../tree_saver/lib   ../logger/lib
+ARCHIVES_DIRS_LIB_FOLDERS = ../tree/build ../tree_saver/build ../logger/build
 ARCHIVES_DIRS_FLAGS       = $(addprefix -L, $(ARCHIVES_DIRS_LIB_FOLDERS))
 #------------------------------------------------------------------------------------------
 

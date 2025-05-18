@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 
-#include "libpyam_ir.h"
 #include "tree_lib.h"
 #include "ir_debug_macroses.h"
+#include "operations.h"
 
 const size_t START_IR_DATA_CAPACITY = 50;
 const size_t OPERAND_NAME_LEN       = 50;
@@ -50,7 +50,6 @@ struct IrBlockTypeInfo
 {
     IrBlockType type;
 
-    const char *const pyam_ir_name;
 
     ON_IR_DEBUG(
     const char *const debug_name;

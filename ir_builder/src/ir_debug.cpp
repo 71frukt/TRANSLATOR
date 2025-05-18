@@ -142,8 +142,8 @@ static const char *GetIrBlockDumpName(const IrBlock *const block)
 
 void LoadOperandRealName(IrOperand *named_operand, const Node *named_node)
 {
-    lassert(named_node, "");
-    lassert(named_node->type == NODE_FUNC || named_node->type == NODE_VAR, "");
+    lassert(named_node);
+    lassert(named_node->type == NODE_FUNC || named_node->type == NODE_VAR);
     snprintf(named_operand->comment_name, OPERAND_NAME_LEN, "%s", named_node->val.prop_name->name);
 }
 
@@ -157,8 +157,19 @@ void MakeBlockComment(IrBlock *block)
         if (block->operand_1.type == IR_OPERAND_TYPE_VAR)
             snprintf(comment, COMMENT_LEN, "int %s", block->operand_1.comment_name);
         break;
+
+    case IR_BLOCK_TYPE_CALL_FUNCTION:
+    case IR_BLOCK_TYPE_FUNCTION_BODY:
+    case IR_BLOCK_TYPE_COND_JUMP:
+    case IR_BLOCK_TYPE_NEG_COND_JUMP:
+    case IR_BLOCK_TYPE_OPERATION:
+    case IR_BLOCK_TYPE_RETURN:
+    case IR_BLOCK_TYPE_LOCAL_LABEL:
+    case IR_BLOCK_TYPE_SYSCALL:
+    case IR_BLOCK_TYPE_INVALID:
     
     default:
         break;
     }
 }
+

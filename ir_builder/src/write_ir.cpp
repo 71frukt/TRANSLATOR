@@ -7,7 +7,7 @@
 
 FILE *GetInputAST(const int argc, const char *argv[])
 {
-    lassert(argv, "");
+    lassert(argv);
 
     FILE *input_ast = NULL;
 
@@ -26,7 +26,7 @@ FILE *GetInputAST(const int argc, const char *argv[])
 
 IrFuncRes PrintIrBlock(IrBlock *block, FILE *dest_file)
 {
-    lassert(block, "");
+    lassert(block);
     
     const char *const block_name     = block->block_type_info->debug_name;
     const char *const operation_name = block->operation_info->debug_name;
