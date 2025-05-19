@@ -11,6 +11,9 @@ const size_t START_IR_DATA_CAPACITY = 50;
 const size_t OPERAND_NAME_LEN       = 50;
 const size_t COMMENT_LEN            = 100;
 
+const size_t MAIN_FUNC_NUM     = 777;
+const size_t MAIN_FUNC_ARG_CNT = 1;
+
 struct FuncLabel
 {
     size_t num;

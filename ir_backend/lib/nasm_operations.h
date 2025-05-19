@@ -39,6 +39,8 @@
 
 #define QWORD_SYM  "qword "
 
+#define HLT_SYS_NUM  "60 "
+
 
 #define PUSH_(source_)        "\t" PUSH_SYM source_ "\n"
 #define POP_(dest)            "\t" POP_SYM  dest   "\n"
@@ -53,8 +55,12 @@
 #define TEST_(arg_1_, arg_2_)  "\t" TEST_SYM arg_1_ ", " arg_2_ "\n"
 
 #define RET_  "\tret \n\n"
-#define CALL_ "\tcall " _FUNC_ "\n"
+#define FUNC_CALL_ "\tcall " _FUNC_ "\n"
 
-#define COMM_(text_) "\t#" text_
+#define COMM_(text_) "\t; " text_
+
+#define _MY_SYSCALL_  "\tcall %s\n\n"
+
+#define HLT_  MOV_(RAX_, "60") "\tsyscall\n"
 
 #endif /*NASM_OPERATIONS_H*/

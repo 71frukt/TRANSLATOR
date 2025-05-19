@@ -34,6 +34,7 @@ static void SetPoisonOperationBlock(IrBlock *operation_block);
 
 
 #define NONE_OPERAND  {IR_OPERAND_TYPE_NONE, {}}
+#define MAIN_FUNC_NAME  "MAIN_HOI"
 
 
 // ====================== BLOCKS TYPE INFO ===============================          // TODO: переделать нахуй.
@@ -41,7 +42,7 @@ static void SetPoisonOperationBlock(IrBlock *operation_block);
     const static IrBlockTypeInfo struct_info_##block_type_ = {block_type_ ON_IR_DEBUG( , debug_name_)}
 
     //                            block_type               debug_name
-    INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPECALL_FUNCTION , "call_func"     );    
+    INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_CALL_FUNCTION  , "call_func"     );    
     INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_FUNCTION_BODY , "func"          );
     INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_COND_JUMP     , "cond_jump"     );
     INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_NEG_COND_JUMP , "neg_cond_jump" );    
@@ -84,7 +85,7 @@ const IrBlockTypeInfo *GetIrBlockTypeInfo(IrBlockType block_type)
 
     switch (block_type)
     {
-        TYPE_INFO_CASE_( IR_BLOCK_TYPECALL_FUNCTION );
+        TYPE_INFO_CASE_( IR_BLOCK_TYPE_CALL_FUNCTION );
         TYPE_INFO_CASE_( IR_BLOCK_TYPE_FUNCTION_BODY );
         TYPE_INFO_CASE_( IR_BLOCK_TYPE_COND_JUMP     );
         TYPE_INFO_CASE_( IR_BLOCK_TYPE_NEG_COND_JUMP );
@@ -528,6 +529,10 @@ static IrOperand GetIrFuncInit(IR_struct *ir, const Node *const func_init_node)
     // log(INFO, "init func '%s' - num = %lu", func_node->val.prop_name->name, func_num);
 
     size_t arg_cnt = GetFuncArgsNum(func_t_indictor_node);
+
+    if (strcmp(func_node->val.prop_name->name, MAIN_FUNC_NAME) == 0)
+        func_num = MAIN_FUNC_NUM;
+
     Label func_label  = {.func = {.num = func_num, .arg_cnt = arg_cnt}};
     // IrOperand arg_cnt_operand = {.type = IR_OPERAND_TYPE_NUM, .val = {.num = arg_cnt}};
     
@@ -596,7 +601,7 @@ static IrOperand GetCallFunc(IR_struct *ir, const Node *const call_node)
     
     IrOperand ret_tmp_operand = IrNewTmpOperand(ir);
 
-    IrBlock *call_func_block = IrNewBlock(ir, IR_BLOCK_TYPECALL_FUNCTION, IR_OPERATION_TYPE_NONE, ret_tmp_operand, func_label_operand, NONE_OPERAND, {});
+    IrBlock *call_func_block = IrNewBlock(ir, IR_BLOCK_TYPE_CALL_FUNCTION, IR_OPERATION_TYPE_NONE, ret_tmp_operand, func_label_operand, NONE_OPERAND, {});
 
     ON_IR_DEBUG(
     AddBlockComment(call_func_block, "call %s(%lu args)", func_node->val.prop_name->name, arg_cnt);

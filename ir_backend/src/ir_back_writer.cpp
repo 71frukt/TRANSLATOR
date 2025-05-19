@@ -1,4 +1,9 @@
 #include <stdio.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
 
 #include "ir_back_writer.h"
 #include "logger.h"
@@ -6,6 +11,7 @@
 
 #include "nasm_operations.h"
 
+static IrBackendFuncRes MakePreambleAsm     (FILE *dest_file);
 static IrBackendFuncRes BlockToAsm          (const IrBlock *block            , FILE *dest_file);
 static IrBackendFuncRes AssignBlockToAsm    (const IrBlock *assign_block     , FILE *dest_file);
 static IrBackendFuncRes OperationBlockToAsm (const IrBlock *operation_block  , FILE *dest_file);
@@ -14,11 +20,13 @@ static IrBackendFuncRes CondJumpToAsm       (const IrBlock *local_label_block, F
 static IrBackendFuncRes CallFuncToAsm       (const IrBlock *call_func_block  , FILE *dest_file);
 static IrBackendFuncRes FuncBodyToAsm       (const IrBlock *func_body_block  , FILE *dest_file);
 static IrBackendFuncRes FuncReturnToAsm     (const IrBlock *func_return_block, FILE *dest_file);
+static IrBackendFuncRes SyscallToAsm        (const IrBlock *syscall_block    , FILE *dest_file);
 
 static IrBackendFuncRes FuncFirstArgToAsm   (IrOperand arg_source_operand,                    FILE *dest_file);
 static IrBackendFuncRes AssignVarToAsm      (IrOperand var_operand, IrOperand source_operand, FILE *dest_file);
 static IrBackendFuncRes AssignArgToAsm      (IrOperand var_operand, IrOperand source_operand, FILE *dest_file);
 
+static IrBackendFuncRes AddSystemLib (FILE *dest_file, const char *const lib_file_name);
 
 static void AddOperationInRaxAsm  (FILE *dest_file, IrOperand operand1, IrOperand operand2);
 static void SubOperationInRaxAsm  (FILE *dest_file, IrOperand operand1, IrOperand operand2);
@@ -26,6 +34,8 @@ static void MulOperationInRaxAsm  (FILE *dest_file, IrOperand operand1, IrOperan
 static void BoolOperationInRaxAsm (FILE *dest_file, IrOperand operand1, IrOperand operand2, const char *const cond_move_sym);
 
 static void GetOperandValToRegisterAsm(FILE *dest_file, IrOperand operand, const char *const dest_register);
+
+static const char *const LIB_FILE_PATH = "src/system_lib.asm";
 
 FILE *GetOutputAsmFile(const int argc, const char *argv[])
 {
@@ -50,16 +60,52 @@ IrBackendFuncRes IrToAsmCode(const IR_struct *const ir, FILE *dest_file)
     IR_VERIFY(ir, IR_BACK_FUNC_FAIL);
     lassert(dest_file);
 
+    MakePreambleAsm(dest_file);
+
     const IrBlock *blocks = ir->blocks;
 
     for (size_t i = 0; i < ir->size; i++)
-    {
         BlockToAsm(blocks + i, dest_file);
-    }
+
+    IR_BACK_HANDLER(AddSystemLib(dest_file, LIB_FILE_PATH));
 
     IR_VERIFY(ir, IR_BACK_FUNC_FAIL);
     return IR_BACK_FUNC_OK;
 }
+
+
+static IrBackendFuncRes MakePreambleAsm(FILE *dest_file)
+{
+    lassert(dest_file);
+
+    fprintf(dest_file,  "section .text  \n"
+                        "global _start  \n\n"
+                        "_start:        \n");
+
+    
+    Label main_func_label = {.func = {.num = MAIN_FUNC_NUM, .arg_cnt = MAIN_FUNC_ARG_CNT}};
+
+    IrOperand main_arg_fictive_operand = {.type = IR_OPERAND_TYPE_NUM, .val = {.num = 0}};
+
+    IrBlock call_main_fictive_block = {
+        .block_type_info = GetIrBlockTypeInfo(IR_BLOCK_TYPE_CALL_FUNCTION), 
+        .operand_1 = {.type = IR_OPERAND_TYPE_FUNC_LABEL, .val = {.label = main_func_label}}
+    };
+   
+    FuncFirstArgToAsm(main_arg_fictive_operand, dest_file);
+    CallFuncToAsm(&call_main_fictive_block, dest_file);
+
+    // fprintf(dest_file,  SUB_(RSP_, "8")
+    //                     PUSH_(RBP_)
+    //                     PUSH_("0" COMM_("arg for main")));
+
+    // fprintf(dest_file,  FUNC_CALL_, MAIN_FUNC_NUM, MAIN_FUNC_ARG_CNT);
+
+    fprintf(dest_file,  HLT_);
+
+    return IR_BACK_FUNC_OK;
+}
+
 
 IrBackendFuncRes BlockToAsm(const IrBlock *block, FILE *dest_file)
 {
@@ -73,10 +119,10 @@ IrBackendFuncRes BlockToAsm(const IrBlock *block, FILE *dest_file)
     case IR_BLOCK_TYPE_LOCAL_LABEL   :  return LocalLabelToAsm     (block, dest_file);
     case IR_BLOCK_TYPE_COND_JUMP     :  return CondJumpToAsm       (block, dest_file, JNE_SYM);
     case IR_BLOCK_TYPE_NEG_COND_JUMP :  return CondJumpToAsm       (block, dest_file, JE_SYM);
-    case IR_BLOCK_TYPECALL_FUNCTION :  return CallFuncToAsm       (block, dest_file);
+    case IR_BLOCK_TYPE_CALL_FUNCTION :  return CallFuncToAsm       (block, dest_file);
     case IR_BLOCK_TYPE_FUNCTION_BODY :  return FuncBodyToAsm       (block, dest_file);
     case IR_BLOCK_TYPE_RETURN        :  return FuncReturnToAsm     (block, dest_file);
-    case IR_BLOCK_TYPE_SYSCALL       :
+    case IR_BLOCK_TYPE_SYSCALL       :  return SyscallToAsm        (block, dest_file);
     case IR_BLOCK_TYPE_INVALID       :
 
     default                          : return IR_BACK_FUNC_FAIL;
@@ -235,7 +281,7 @@ static IrBackendFuncRes CondJumpToAsm(const IrBlock *local_label_block, FILE *de
 
 static IrBackendFuncRes CallFuncToAsm(const IrBlock *call_func_block, FILE *dest_file)
 {
-    lassert(call_func_block && call_func_block->block_type_info->type == IR_BLOCK_TYPECALL_FUNCTION);
+    lassert(call_func_block && call_func_block->block_type_info->type == IR_BLOCK_TYPE_CALL_FUNCTION);
     lassert(dest_file);
 
     // stack frame debug in FuncFirstArgToAsm()
@@ -243,7 +289,7 @@ static IrBackendFuncRes CallFuncToAsm(const IrBlock *call_func_block, FILE *dest
     IrOperand func_label = call_func_block->operand_1;
     lassert(func_label.type == IR_OPERAND_TYPE_FUNC_LABEL);
 
-    fprintf(dest_file, CALL_, func_label.val.label.func.num, func_label.val.label.func.arg_cnt);
+    fprintf(dest_file, FUNC_CALL_, func_label.val.label.func.num, func_label.val.label.func.arg_cnt);
 
     // ret_addr to space before args  in FuncBodyToAsm()
 
@@ -278,6 +324,46 @@ static IrBackendFuncRes FuncReturnToAsm(const IrBlock *func_return_block, FILE *
     fprintf(dest_file, ADD_(RSP_, "8"));
     fprintf(dest_file, POP_(RBP_));
     fprintf(dest_file, RET_);
+
+    return IR_BACK_FUNC_OK;
+}
+
+
+static IrBackendFuncRes SyscallToAsm(const IrBlock *syscall_block, FILE *dest_file)
+{
+    lassert(syscall_block && syscall_block->block_type_info->type == IR_BLOCK_TYPE_SYSCALL);
+    lassert(dest_file);
+
+    GetOperandValToRegisterAsm(dest_file, syscall_block->operand_1, RAX_);  // syscall arg in rax
+
+    fprintf(dest_file, _MY_SYSCALL_, syscall_block->label.sys);
+
+    return IR_BACK_FUNC_OK;
+}
+
+
+static IrBackendFuncRes AddSystemLib(FILE *dest_file, const char *const lib_file_name)
+{
+    lassert(dest_file);
+    lassert(lib_file_name);
+
+    int lib_fd = open(lib_file_name, O_RDONLY);
+    if (lib_fd == -1)
+        return IR_BACK_FUNC_FAIL;
+
+    struct stat lib_stat;
+    if (fstat(lib_fd, &lib_stat) == -1)
+        return IR_BACK_FUNC_FAIL;
+
+    char *lib_mmap = (char *) mmap(NULL, (size_t) lib_stat.st_size, PROT_READ, MAP_PRIVATE, lib_fd, 0);
+    
+    if (lib_mmap == MAP_FAILED)
+        return IR_BACK_FUNC_FAIL;
+
+    fprintf(dest_file, "\n\n\n%.*s", (int)lib_stat.st_size, lib_mmap);
+
+    munmap(lib_mmap, (size_t) lib_stat.st_size);
+    close(lib_fd);
 
     return IR_BACK_FUNC_OK;
 }

@@ -1,27 +1,14 @@
-section .text  
-global _start  
+section .text
+    global _start
 
-_start:        
-	sub rsp , 8
-	push rbp 
-	push 0 
-	mov rbp , rsp 
-	call func_777_1 
-	mov rax , 60
-	syscall
-func_777_1 : 
-	pop rax 	; ret addr -> rax
-	mov [rbp + 2 * 8], rax 
-	mov rax , 777 
-	call printf
+_start:
+    ; Инициализация числа для вывода
+    mov rax, -777  ; Число, которое будем выводить
+    call printf
 
-	mov rsp , rbp 
-	add rsp , 8
-	pop rbp 
-	ret 
-
-
-
+    mov rax, 60         ; sys_exit
+    xor rdi, rdi
+    syscall
 
 ;=================================================================================
 ; printf

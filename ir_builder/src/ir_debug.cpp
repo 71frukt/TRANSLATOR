@@ -158,7 +158,7 @@ void MakeBlockComment(IrBlock *block)
             snprintf(comment, COMMENT_LEN, "int %s", block->operand_1.comment_name);
         break;
 
-    case IR_BLOCK_TYPECALL_FUNCTION:
+    case IR_BLOCK_TYPE_CALL_FUNCTION:
         snprintf(comment, COMMENT_LEN, "call %s", block->operand_1.comment_name);
         break;
 

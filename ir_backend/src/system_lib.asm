@@ -1,28 +1,3 @@
-section .text  
-global _start  
-
-_start:        
-	sub rsp , 8
-	push rbp 
-	push 0 
-	mov rbp , rsp 
-	call func_777_1 
-	mov rax , 60
-	syscall
-func_777_1 : 
-	pop rax 	; ret addr -> rax
-	mov [rbp + 2 * 8], rax 
-	mov rax , 777 
-	call printf
-
-	mov rsp , rbp 
-	add rsp , 8
-	pop rbp 
-	ret 
-
-
-
-
 ;=================================================================================
 ; printf
 ;

@@ -1,0 +1,17 @@
+ASM = nasm
+ASMFLAGS = -f elf64
+LD = ld
+LDFLAGS =
+
+TARGET = tr_prog
+
+all: $(TARGET)
+
+$(TARGET): $(TARGET).o
+	$(LD) $(LDFLAGS) -o $@ $^
+
+$(TARGET).o: $(TARGET).asm
+	$(ASM) $(ASMFLAGS) -o $@ $<
+
+clean:
+	rm -f *.o $(TARGET)

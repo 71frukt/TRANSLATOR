@@ -32,7 +32,7 @@ enum IrOperationType
 
 enum IrBlockType
 {
-    IR_BLOCK_TYPECALL_FUNCTION ,
+    IR_BLOCK_TYPE_CALL_FUNCTION ,
     IR_BLOCK_TYPE_FUNCTION_BODY ,
     IR_BLOCK_TYPE_COND_JUMP     ,
     IR_BLOCK_TYPE_NEG_COND_JUMP ,
@@ -53,7 +53,7 @@ enum IrBlockType
 // ||  Operation             ||  Tmp or var         ||  operation  ||  None        ||  Var or Tmp or Num    ||  Var or Tmp or Num   ||
 // ||  Local label           ||  None               ||  None       ||  Local Label ||  None                 ||  None                ||
 // ||  Return                ||  Tmp or var or Num  ||  None       ||  None        ||  None                 ||  None                ||
-// ||  Call sys function     ||  Tmp                ||  None       ||  Func label  ||  None                 ||  None                ||
+// ||  Call sys function     ||  Tmp                ||  None       ||  Func label  ||  Var or Tmp or Num    ||  None                ||
 ////--------------------------------------------------------------------------------------------------------------------------------////
 
 
