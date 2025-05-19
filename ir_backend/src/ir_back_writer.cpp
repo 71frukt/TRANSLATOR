@@ -125,9 +125,12 @@ static IrBackendFuncRes AssignArgToAsm(IrOperand arg_operand, IrOperand source_o
     if (arg_operand.val.arg == 0)   // the first arg of func call -> free space for future ret addr
         return FuncFirstArgToAsm(source_operand, dest_file);
 
-    if (source_operand.type != IR_OPERAND_TYPE_TMP)
+    if (source_operand.type == IR_OPERAND_TYPE_NUM)
+        fprintf(dest_file, PUSH_(_NUM_), source_operand.val.num);
+
+    else if (source_operand.type == IR_OPERAND_TYPE_VAR)
         fprintf(dest_file, PUSH_(QWORD_SYM _VAR_), source_operand.val.var);
-    
+
     // else argument is inited by tmp that is already in stack
 
     return IR_BACK_FUNC_OK;
@@ -136,15 +139,22 @@ static IrBackendFuncRes AssignArgToAsm(IrOperand arg_operand, IrOperand source_o
 
 static IrBackendFuncRes FuncFirstArgToAsm(IrOperand arg_source_operand, FILE *dest_file)
 {
-    if (arg_source_operand.type == IR_OPERAND_TYPE_TMP)
+    if (arg_source_operand.type == IR_OPERAND_TYPE_NUM)
     {
-        GetOperandValToRegisterAsm(dest_file, arg_source_operand, RAX_);
+        fprintf(dest_file, SUB_(RSP_, "8"));
+        fprintf(dest_file, PUSH_(RBP_));
+        fprintf(dest_file, PUSH_(_NUM_), arg_source_operand.val.num);
+    }
+
+    else if (arg_source_operand.type == IR_OPERAND_TYPE_TMP)
+    {
+        fprintf(dest_file, POP_(RAX_));
         fprintf(dest_file, SUB_(RSP_, "8"));
         fprintf(dest_file, PUSH_(RBP_));
         fprintf(dest_file, PUSH_(RAX_));
     }
 
-    else
+    else // type == IR_OPERAND_VAR
     {
         fprintf(dest_file, SUB_(RSP_, "8"));
         fprintf(dest_file, PUSH_(RBP_));
@@ -251,11 +261,9 @@ static IrBackendFuncRes FuncBodyToAsm(const IrBlock *func_body_block, FILE *dest
 
     fprintf(dest_file, _FUNC_INIT_, func_num, arg_cnt);
 
-    fprintf(dest_file, POP_(RAX_));     // ret addr -> rax
+    fprintf(dest_file, POP_(RAX_ COMM_("ret addr -> rax")));
     
-    size_t shift = arg_cnt + 1;   // arg_cnt + saved rbp
-    
-    fprintf(dest_file, MOV_("[" RSP_ "+ %lu]", RAX_), shift);  // rax = ret_addr -> before saved rbp
+    fprintf(dest_file, MOV_("[" RBP_ "+ 2 * 8]", RAX_));  // rax = ret_addr -> before saved rbp (rbp is pointing on arg_0)
 
     return IR_BACK_FUNC_OK;
 }

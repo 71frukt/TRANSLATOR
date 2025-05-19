@@ -6,7 +6,7 @@
 #define RBP_  "rbp "
 #define RSP_  "rsp "
 
-#define _VAR_          "[" RBP_ "+ %lu]"
+#define _VAR_          "[" RBP_ "- %lu * 8]"
 #define _NUM_          "%d "
 #define _FUNC_         "func_%lu_%lu "
 #define _LOCAL_LABEL_  "local_%lu "
@@ -37,7 +37,7 @@
 
 #define TEST_SYM  "test "
 
-#define QWORD_SYM  "qword"
+#define QWORD_SYM  "qword "
 
 
 #define PUSH_(source_)        "\t" PUSH_SYM source_ "\n"
@@ -54,5 +54,7 @@
 
 #define RET_  "\tret \n\n"
 #define CALL_ "\tcall " _FUNC_ "\n"
+
+#define COMM_(text_) "\t#" text_
 
 #endif /*NASM_OPERATIONS_H*/
