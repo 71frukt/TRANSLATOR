@@ -17,7 +17,7 @@ void ConsoleColoredFprint(const char *const color, const char *const format, va_
 
 void HtmlColoredFprint(FILE *dest_file, const char *const color, const char *const format, va_list args)
 {
-    fprintf  (dest_file, DEFAULT_TAB);                       
+    fprintf  (dest_file, LOGGER_DEFAULT_TAB);                       
     fprintf  (dest_file, "<span class=%s>", color);           
     vfprintf (dest_file, format, args);                       
     fprintf  (dest_file, "</span>\n");                             

@@ -59,6 +59,13 @@ IrFuncRes PrintIrBlock(IrBlock *block, FILE *dest_file)
         PRINT_COMMA_IF_NEED;
         fprintf(dest_file, "label_%lu", block->label.local);
     }
+
+    if (block->block_type_info->type == IR_BLOCK_TYPE_SYSCALL)
+    {
+        PRINT_COMMA_IF_NEED;
+        fprintf(dest_file, "%s", block->label.sys);
+    }
+
     // if (IS_LABEL_BLOCK_(block))
     // {
     //     PRINT_COMMA_IF_NEED;

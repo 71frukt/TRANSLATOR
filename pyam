@@ -1,0 +1,106 @@
+Gg(0)
+
+RingRing(tmp0, main)  # call main
+  Gnoming(arg0, tmp0)
+
+  Bobb(tmp1, hlt, 1)  # System function call: "hlt"
+
+Gyat(main, 0, 3)  # implement main
+  Gnoming(tmp2, 3 )
+  Gnoming(var0, tmp2)  # Variable: 
+  Gnoming(tmp3, var0)   # 
+  Gnoming(arg1, tmp3)
+
+  Bobb(tmp4, out, 1)  # System function call: "out"
+  Gnoming(tmp5, var0)   # 
+  Gnoming(arg2, tmp5)
+
+RingRing(tmp6, func_2_1)  # 
+
+  Gnoming(var1, tmp6)  # Variable: 
+  Gnoming(tmp7, var1)   # 
+  Gnoming(arg1, tmp7)
+
+  Bobb(tmp8, out, 1)  # System function call: "out"
+  Gnoming(tmp9, var0)   # 
+  Gnoming(arg3, tmp9)
+
+RingRing(tmp10, func_4_1)  # 
+
+  Gnoming(var2, tmp10)  # Variable: 
+  Gnoming(tmp11, var2)   # 
+  Gnoming(arg1, tmp11)
+
+  Bobb(tmp12, out, 1)  # System function call: "out"
+  Gnoming(tmp13, 0 )
+
+  Cherepovec(tmp13)
+
+Gyat(func_2_1, 1, 1)  # 
+  Gnoming(var0, arg2)   # Variable: 
+  Gnoming(tmp14, var0)   # 
+  Gnoming(tmp15, 1 )
+  Digging(tmp16, 5, tmp14, tmp15)  # IR_OP_TYPE_EQ
+
+Frog(label0, tmp16)  # check IF condition, jmp to else
+  Gnoming(tmp17, 1 )
+
+  Cherepovec(tmp17)
+
+Viperr(label0)  # label else for IF
+  Gnoming(tmp18, var0)   # 
+  Gnoming(tmp19, 1 )
+  Digging(tmp20, 2, tmp18, tmp19)  # IR_OP_TYPE_SUB
+
+  Gnoming(arg2, tmp20)
+
+RingRing(tmp21, func_2_1)  # 
+
+  Gnoming(tmp22, var0)   # 
+  Digging(tmp23, 3, tmp21, tmp22)  # IR_OP_TYPE_MUL
+
+
+  Cherepovec(tmp23)
+
+Gyat(func_4_1, 1, 1)  # 
+  Gnoming(var0, arg3)   # Variable: 
+  Gnoming(tmp24, var0)   # 
+  Gnoming(tmp25, 1 )
+  Digging(tmp26, 5, tmp24, tmp25)  # IR_OP_TYPE_EQ
+
+Frog(label1, tmp26)  # check IF condition, jmp to else
+  Gnoming(tmp27, 1 )
+
+  Cherepovec(tmp27)
+
+Viperr(label1)  # label else for IF
+  Gnoming(tmp28, var0)   # 
+  Gnoming(tmp29, 0 )
+  Digging(tmp30, 5, tmp28, tmp29)  # IR_OP_TYPE_EQ
+
+Frog(label2, tmp30)  # check IF condition, jmp to else
+  Gnoming(tmp31, 0 )
+
+  Cherepovec(tmp31)
+
+Viperr(label2)  # label else for IF
+  Gnoming(tmp32, var0)   # 
+  Gnoming(tmp33, 1 )
+  Digging(tmp34, 2, tmp32, tmp33)  # IR_OP_TYPE_SUB
+
+  Gnoming(arg3, tmp34)
+
+RingRing(tmp35, func_4_1)  # 
+
+  Gnoming(tmp36, var0)   # 
+  Gnoming(tmp37, 2 )
+  Digging(tmp38, 2, tmp36, tmp37)  # IR_OP_TYPE_SUB
+
+  Gnoming(arg3, tmp38)
+
+RingRing(tmp39, func_4_1)  # 
+
+  Digging(tmp40, 1, tmp35, tmp39)  # IR_OP_TYPE_ADD
+
+
+  Cherepovec(tmp40)

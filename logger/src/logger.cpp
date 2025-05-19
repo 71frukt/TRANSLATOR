@@ -13,7 +13,6 @@ size_t  DefaultTabNum = 1;
 FILE *OpenLog(const char *const logfile_name, const char *const style_preamble)
 {
     LogFile = fopen(GetFileFullPath(logfile_name, LOGS_FOLDER_NAME), "w");
-
     assert(LogFile && "Error when opening LogFile");
 
     if (LogFile == NULL)
@@ -56,6 +55,7 @@ void LogPrint(const char *const file, const int line, const char *const func, Lo
     assert(file);
     assert(func);
     assert(format);
+    assert(LogFile && "LogFile = NULL");
 
     va_list args_console;
     va_list args_file;
@@ -64,7 +64,7 @@ void LogPrint(const char *const file, const int line, const char *const func, Lo
     va_start(args_file,    format);
 
     for (size_t i = 0; i < DefaultTabNum; i++)
-        ON_LOGS(fprintf(LogFile, DEFAULT_TAB));
+        ON_LOGS(fprintf(LogFile, LOGGER_DEFAULT_TAB));
 
     switch (log_type)
     {

@@ -21,6 +21,7 @@ union Label
 {
     size_t local;
     FuncLabel  func;
+    const char *sys;
 };
 
 union IrOperandVal
@@ -48,7 +49,7 @@ struct IrOperand
 
 struct IrBlockTypeInfo
 {
-    IrBlockType type;
+    const IrBlockType type;
 
 
     ON_IR_DEBUG(
@@ -58,7 +59,7 @@ struct IrBlockTypeInfo
 
 struct IrOperationTypeInfo
 {
-    IrOperationType type;
+    const IrOperationType type;
 
     ON_IR_DEBUG(
     const char *const debug_name;
@@ -91,6 +92,7 @@ struct ProperNamesCount
     size_t var_count;
     size_t func_count;
     size_t local_label_count;
+    size_t arg_count;
 };
 
 struct IR_struct

@@ -7,11 +7,11 @@
 
 void SemanticAnal(Tree *tree)
 {
-    CheckFuncsValidity(tree, tree->root_ptr);
+    CheckProperNamesValidity(tree, tree->root_ptr);
 
 }
 
-void CheckFuncsValidity(Tree *tree, Node *cur_node)
+void CheckProperNamesValidity(Tree *tree, Node *cur_node)
 {
     assert(tree);
 
@@ -29,7 +29,7 @@ void CheckFuncsValidity(Tree *tree, Node *cur_node)
             SYNTAX_ERROR(tree, cur_node, error);
         }
 
-        size_t argc = GetCountOfArgs(cur_node);
+        size_t argc = GetFuncArgsNum(cur_node);
         if (argc != cur_node->left->val.prop_name->args_count)
         {
             char error[ERROR_NAME_LEN] = {};
@@ -38,10 +38,22 @@ void CheckFuncsValidity(Tree *tree, Node *cur_node)
         }
     }
 
+    // else if (cur_node->type == NODE_KEY_WORD && cur_node->val.key_word->name == TREE_VAR_T_INDICATOR)
+    // {
+    //     ProperName *var_name = cur_node->left->val.prop_name;
+
+    //     if (!var_name->is_init)
+    //     {
+    //         char error[ERROR_NAME_LEN] = {};
+    //         sprintf(error, "Using undeclared variable '%s'", var_name->name);
+    //         SYNTAX_ERROR(tree, cur_node, error);
+    //     }
+    // }
+
     else
     {
-        CheckFuncsValidity(tree, cur_node->left);
-        CheckFuncsValidity(tree, cur_node->right);
+        CheckProperNamesValidity(tree, cur_node->left);
+        CheckProperNamesValidity(tree, cur_node->right);
     }
 }
 

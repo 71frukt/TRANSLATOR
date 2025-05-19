@@ -137,7 +137,7 @@ void        NamesTableCtor          (size_t start_capa, NamesTable *table);
 void        TreeNamesTablesDtor     (Tree *tree);
 void        NamesTableDtor          (NamesTable *table);
 
-size_t      GetCountOfArgs          (Node *func_node);
+size_t      GetFuncArgsNum          (Node *func_node);
 
 bool        SubtreeContainsType     (Node *cur_node, NodeType type);
 bool        OpNodeIsCommutativity   (Node *op_node);

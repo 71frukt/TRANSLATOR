@@ -18,9 +18,9 @@ ARCHIVES_DIRS_FLAGS       = $(addprefix -L, $(ARCHIVES_DIRS_LIB_FOLDERS))
 
 
 #---------- libs's make args (use postfix '_MAKE_FLAGS') ----------------------------------
-TREE_MAKE_FLAGS 	  = USE_DEBUG=$(USE_DEBUG) LOGS_DIR=$(LOGS_DIR) GRAPH_DIR=$(GRAPH_DIR)
-TREE_SAVER_MAKE_FLAGS = USE_DEBUG=$(USE_DEBUG) 
-LOGGER_MAKE_FLAGS     = USE_LOGS=$(USE_LOGS) LOGS_DIR=$(LOGS_DIR)
+TREE_MAKE_FLAGS 	  = LOGS_DIR=$(LOGS_DIR) GRAPH_DIR=$(GRAPH_DIR)
+TREE_SAVER_MAKE_FLAGS = 
+LOGGER_MAKE_FLAGS     = LOGS_DIR=$(LOGS_DIR)
 
 SUBMAKES_FLAGS = $(foreach archive,$(ARCHIVES_NAMES), $(shell echo $(archive) | tr '[:lower:]' '[:upper:]')_MAKE_FLAGS)
 #------------------------------------------------------------------------------------------
@@ -66,8 +66,9 @@ THIS_PROJ_DEP  = $(patsubst $(SRC_DIR)/%.cpp,$(DEP_DIR)/%.d,$(THIS_PROJ_CPP))
 
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEP_DIR)/$*.d
 
-EXECUTABLE ?= ir_builder
-TARGET      = $(BUILD_DIR)/$(EXECUTABLE) 
+# EXECUTABLE ?= ir_builder
+# TARGET      = $(BUILD_DIR)/$(EXECUTABLE) 
+TARGET_ARCHIVE = $(BUILD_DIR)/libir_builder.a 
 
 FLAGS  = -Wall -Wextra -Weffc++ -Waggressive-loop-optimizations -Wc++14-compat -Wmissing-declarations -Wcast-align -Wcast-qual                											\
  		 -Wchar-subscripts -Wconditionally-supported -Wconversion -Wctor-dtor-privacy -Wempty-body -Wfloat-equal -Wformat-nonliteral -Wformat-security -Wformat-signedness              \
@@ -97,10 +98,10 @@ FLAGS += $(DEFINE_VARS_FLAGS)
 
 .PHONY: all clean rebuild build_libs
 
-all: $(TARGET) $(foreach dir, $(RELEASE_DIRS_MK), $($(dir)))  $(if $(USE_DEBUG), $(foreach dir, $(DEBUG_DIRS_MK), $($(dir))))  $(if $(USE_LOGS), $(foreach dir, $(LOGS_DIRS_MK), $($(dir))))
+all: $(TARGET_ARCHIVE) $(foreach dir, $(RELEASE_DIRS_MK), $($(dir))) $(if $(USE_DEBUG), $(foreach dir, $(DEBUG_DIRS_MK), $($(dir)))) $(if $(USE_LOGS), $(foreach dir, $(LOGS_DIRS_MK), $($(dir))))
 
-run:
-	@$(TARGET)
+$(TARGET_ARCHIVE): $(THIS_PROJ_OBJ)
+	ar rcs $@ $^
 
 gdb:
 	gdb $(TARGET)
@@ -113,17 +114,17 @@ rebuild: clean all
 rebuild_all: rebuild_libs rebuild
 
 build_libs:
-	$(foreach i, $(shell seq 1 $(words $(ARCHIVES_DIRS))), 					\
-		$(eval dir   := $(word $(i),   $(ARCHIVES_DIRS))) 					\
-		$(eval flags := $(word $(i),   $(SUBMAKES_FLAGS)))  				\
-		$(MAKE) -C $(dir) USE_DEBUG=$(USE_DEBUG) $($(flags)); 				\
+	$(foreach i, $(shell seq 1 $(words $(ARCHIVES_DIRS))), 										\
+		$(eval dir   := $(word $(i),   $(ARCHIVES_DIRS))) 										\
+		$(eval flags := $(word $(i),   $(SUBMAKES_FLAGS)))  									\
+		$(MAKE) -C $(dir) USE_DEBUG=$(USE_DEBUG) USE_LOGS=$(USE_LOGS) $($(flags)); 				\
 	)
 
 rebuild_libs:
-	$(foreach i, $(shell seq 1 $(words $(ARCHIVES_DIRS))), 					\
-		$(eval dir   := $(word $(i),   $(ARCHIVES_DIRS))) 					\
-		$(eval flags := $(word $(i),   $(SUBMAKES_FLAGS)))  				\
-		$(MAKE) rebuild -C $(dir) USE_DEBUG=$(USE_DEBUG) $($(flags));		\
+	$(foreach i, $(shell seq 1 $(words $(ARCHIVES_DIRS))), 										\
+		$(eval dir   := $(word $(i),   $(ARCHIVES_DIRS))) 										\
+		$(eval flags := $(word $(i),   $(SUBMAKES_FLAGS)))  									\
+		$(MAKE) rebuild -C $(dir) USE_DEBUG=$(USE_DEBUG) USE_LOGS=$(USE_LOGS) $($(flags));		\
 	)
 
 $(TARGET): $(THIS_PROJ_OBJ)

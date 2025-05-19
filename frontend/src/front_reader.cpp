@@ -100,8 +100,6 @@ void MakeTokens(Tree *tree, FILE *source)
 
 Node *GetNamedToken(Tree *tree, char *token_name)
 {
-    fprintf(stderr, "cur_token = '%s'\n", token_name);
-
     if (IsEngLetter(*token_name))
     {
         ProperName *cur_name_ptr = FindNameInTable(&tree->names_table, token_name);
@@ -159,14 +157,12 @@ Node *GetCode(Tree *dest_tree)
     size_t ip = 0;
 
     Node **tokens  = dest_tree->node_ptrs;
-    Node *res_code = GetExpr(dest_tree, &ip);    // FIXME: change to GetFuncInit
+    Node *res_code = GetFuncInit(dest_tree, &ip);
     Node *cur_node = res_code;
 
     while ( !(tokens[ip]->type == NODE_MANAGER && tokens[ip]->val.manager->name == EOT) )
     {
-        fprintf(stderr, "new func: ip = %lu\n", ip);
-
-        Node *new_func = GetExpr(dest_tree, &ip);    // FIXME: change to GetFuncInit
+        Node *new_func = GetFuncInit(dest_tree, &ip);
 
         cur_node->right = new_func;
         cur_node = new_func;
@@ -182,8 +178,6 @@ Node *GetCode(Tree *dest_tree)
 
 Node *GetFuncInit(Tree *dest_tree, size_t *ip)
 {
-    fprintf(stderr, "In GetFuncInit()\n");
-
     assert(dest_tree);
     assert(ip);
     TREE_DUMP(dest_tree);
@@ -277,8 +271,6 @@ Node *GetIf(Tree *dest_tree, size_t *ip)
 
 Node *GetWhile(Tree *dest_tree, size_t *ip)
 {
-            fprintf(stderr, "In GetWhile()\n");
-
     assert(dest_tree);
     assert(ip);
 
@@ -306,8 +298,6 @@ Node *GetWhile(Tree *dest_tree, size_t *ip)
 
 Node *GetExpr(Tree *dest_tree, size_t *ip)
 {
-        fprintf(stderr, "In GetExpr()\n");
-
     assert(dest_tree);
     assert(ip);
 
@@ -326,8 +316,6 @@ Node *GetExpr(Tree *dest_tree, size_t *ip)
 
 Node *GetVarInit(Tree *dest_tree, size_t *ip)
 {
-    fprintf(stderr, "In GetVarInit()\n");
-
     assert(dest_tree);
     assert(ip);
     
@@ -338,7 +326,7 @@ Node *GetVarInit(Tree *dest_tree, size_t *ip)
 
     Node *init_node = tokens[(*ip)++];
     Node *var_node  = GetVarOrFunc(dest_tree, ip);
-fprintf(stderr, "Gett var. need arg\n");
+
     if (var_node->type != NODE_KEY_WORD || var_node->val.key_word->name != TREE_VAR_T_INDICATOR)
         SYNTAX_ERROR(dest_tree, tokens[*ip], "type of NODE_VAR");
 
@@ -347,7 +335,7 @@ fprintf(stderr, "Gett var. need arg\n");
     if (!(tokens[*ip]->type == NODE_KEY_WORD && tokens[*ip]->val.key_word->name == TREE_ASSIGN))
         return init_node;
 
-    RemoveNode(dest_tree, &tokens[(*ip)++]);    // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+    RemoveNode(dest_tree, &tokens[(*ip)++]);
 
     init_node->right = GetBool(dest_tree, ip);
     
@@ -356,8 +344,6 @@ fprintf(stderr, "Gett var. need arg\n");
 
 Node *GetExprSequence(Tree *dest_tree, size_t *ip)
 {
-    fprintf(stderr, "In GetExprSequence()\n");
-
     assert(dest_tree);
     assert(ip);
 
@@ -382,8 +368,6 @@ TREE_DUMP(dest_tree);
 
 Node *GetReturn(Tree *dest_tree, size_t *ip)
 {
-    fprintf(stderr, "In GetReturn()\n");
-
     assert(dest_tree);
     assert(ip);
 
@@ -400,8 +384,6 @@ Node *GetReturn(Tree *dest_tree, size_t *ip)
 
 Node *GetAssign(Tree *dest_tree, size_t *ip)
 {
-    fprintf(stderr, "In GetAssign()\n");
-
     assert(dest_tree);
     assert(ip);
 
@@ -426,8 +408,6 @@ Node *GetAssign(Tree *dest_tree, size_t *ip)
 
 Node *GetBool(Tree *dest_tree, size_t *ip)
 {
-    fprintf(stderr, "In GetBool()\n");
-
     assert(dest_tree);
     assert(ip);
 
@@ -449,8 +429,6 @@ Node *GetBool(Tree *dest_tree, size_t *ip)
 
 Node *GetSum(Tree *dest_tree, size_t *ip)
 {
-    fprintf(stderr, "In GetSum()\n");
-
     assert(dest_tree);
     assert(ip);
 
@@ -472,8 +450,6 @@ Node *GetSum(Tree *dest_tree, size_t *ip)
 
 Node *GetMul(Tree *dest_tree, size_t *ip)
 {
-    fprintf(stderr, "In GetMul()\n");
-
     assert(dest_tree);
     assert(ip);
 
@@ -495,8 +471,6 @@ Node *GetMul(Tree *dest_tree, size_t *ip)
 
 Node *GetPow(Tree *dest_tree, size_t *ip)
 {
-    fprintf(stderr, "In GetPow()\n");
-
     assert(dest_tree);
     assert(ip);
 
@@ -526,8 +500,6 @@ Node *GetPow(Tree *dest_tree, size_t *ip)
 
 Node *GetOp(Tree *dest_tree, size_t *ip)              // f(..) пїЅпїЅпїЅ f(.. , ..)
 {
-    fprintf(stderr, "In GetOp()\n");
-
     assert(dest_tree);
     assert(ip);
 
@@ -584,8 +556,6 @@ Node *GetOp(Tree *dest_tree, size_t *ip)              // f(..) пїЅпїЅпїЅ f(.. , 
 
 Node *GetSumInBrackets(Tree *dest_tree, size_t *ip)
 {
-    fprintf(stderr, "In GetSumInBrackets()\n");
-
     assert(dest_tree);
     assert(ip);
 
@@ -620,18 +590,14 @@ Node *GetVarOrFunc(Tree *dest_tree, size_t *ip)
 
     Node **tokens = dest_tree->node_ptrs;
 
-    fprintf(stderr, "In getVarOrFunc()\n");
-
     if (tokens[*ip]->type == NODE_VAR_OR_FUNC)
     {
-
-        fprintf(stderr, "HERE!\n");
 
         Node *cur_node = tokens[(*ip)++];
         cur_node->type = NODE_VAR;
         Node *arg = NULL;
 
-        if (tokens[*ip]->type == NODE_MANAGER && tokens[*ip]->val.manager->name == OPEN_EXPR_BRACKET)     // копия для swap памяти
+        if (tokens[*ip]->type == NODE_MANAGER && tokens[*ip]->val.manager->name == OPEN_EXPR_BRACKET)
         {
             RemoveNode(dest_tree, &tokens[(*ip)++]);
 
@@ -660,8 +626,6 @@ Node *GetVarOrFunc(Tree *dest_tree, size_t *ip)
 
 Node *GetScanf(Tree *dest_tree, size_t *ip)
 {
-    fprintf(stderr, "GetScanf()\n");
-
     assert(dest_tree);
     assert(ip);
 
@@ -676,9 +640,6 @@ Node *GetScanf(Tree *dest_tree, size_t *ip)
 
 Node *GetPrintf(Tree *dest_tree, size_t *ip)
 {
-    fprintf(stderr, "GetPrintf()\n");
-
-
     assert(dest_tree);
     assert(ip);
 

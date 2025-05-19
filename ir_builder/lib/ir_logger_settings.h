@@ -3,23 +3,23 @@
 
 #include "text_color.h"     // it is logger header
 
-#define COLORS_HTML_PREAMBLE                                                                                                               \
-    "\tbody { background: linear-gradient(to right, #0f2027, #203a43, #2c5364);}                                         \n"          \
-    "\tpre { color: #ffffff; }                                                                                               \n"           \
-    "\t." HTML_RED     "{ color:" HTML_RED     ";}                                                                             \n"            \
-    "\t." HTML_YELLOW  "{ color:" HTML_YELLOW  ";}                                                                             \n"             \
-    "\t." HTML_BLUE    "{ color:" HTML_BLUE    ";}                                                                             \n"              \
-    "\t." HTML_GREEN   "{ color:" HTML_GREEN   ";}                                                                             \n"               \
-    "\t." HTML_CYAN    "{ color:" HTML_CYAN    ";}                                                                             \n"                \
-    "\t." HTML_MAGENTA "{ color:" HTML_MAGENTA ";}                                                                             \n"                 \
-    "\t." HTML_SKYBLUE "{ color:" HTML_SKYBLUE ";}                                                                             \n"                  \
-    "\t.jumbotron {                                                                                                            \n"                   \
-    "\t\tbackground: linear-gradient(to bottom, #ffffff,  #ffffff, #001aff, #001aff, #b00000, #b00000);            \n"                    \
-    "\t\tcolor: white;                                                                                                         \n"                     \
-    "\t\ttext-shadow: 1px 1px 2px rgba(0,0,0,0.5);                                                                           \n"                      \
-    "\t\tborder-radius: 0;                                                                                                     \n"                       \
-    "\t\tmargin-bottom: 0;                                                                                                     \n"                        \
-    "\t}                                                                                                                       \n"                         \
+#define COLORS_HTML_PREAMBLE                                                                                                       \
+    "\tbody { background: linear-gradient(to right, #0f2027, #203a43, #2c5364);}                                         \n" \
+    "\tpre { color: #ffffff; }                                                                                               \n" \
+    "\t." HTML_RED     "{ color:" HTML_RED     ";}                                                                             \n" \
+    "\t." HTML_YELLOW  "{ color:" HTML_YELLOW  ";}                                                                             \n" \
+    "\t." HTML_BLUE    "{ color:" HTML_BLUE    ";}                                                                             \n" \
+    "\t." HTML_GREEN   "{ color:" HTML_GREEN   ";}                                                                             \n" \
+    "\t." HTML_CYAN    "{ color:" HTML_CYAN    ";}                                                                             \n" \
+    "\t." HTML_MAGENTA "{ color:" HTML_MAGENTA ";}                                                                             \n" \
+    "\t." HTML_SKYBLUE "{ color:" HTML_SKYBLUE ";}                                                                             \n" \
+    "\t.jumbotron {                                                                                                            \n" \
+    "\t\tbackground: linear-gradient(to bottom, #ffffff,  #ffffff, #001aff, #001aff, #b00000, #b00000);            \n" \
+    "\t\tcolor: white;                                                                                                         \n" \
+    "\t\ttext-shadow: 1px 1px 2px rgba(0,0,0,0.5);                                                                           \n" \
+    "\t\tborder-radius: 0;                                                                                                     \n" \
+    "\t\tmargin-bottom: 0;                                                                                                     \n" \
+    "\t}                                                                                                                       \n" \
                      
 
 

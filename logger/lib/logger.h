@@ -8,7 +8,7 @@
 #define DEFAULT_LOGFILE_NAME  "LogFile.html"
 // #define LOGS_FOLDER_NAME            "logs"
 
-#define DEFAULT_TAB           "\t"
+#define LOGGER_DEFAULT_TAB    "\t"
 
 extern FILE   *LogFile;
 extern size_t DefaultTabNum;
@@ -35,12 +35,12 @@ const char *GetFileFullPath(const char *const file_name, const char *const path)
 
 #ifdef USE_LOGS
 
-#define lassert(condition, fall_text)                           \
+#define lassert(condition, ...)                                 \
 do                                                              \
 {                                                               \
     if (!(condition))                                           \
     {                                                           \
-        log(ASSERT, fall_text);                                 \
+        log(ASSERT, "" __VA_ARGS__);                            \
         abort();                                                \
     }                                                           \
 } while(0)
@@ -63,7 +63,7 @@ do                                                                          \
 
 
 #else
-#define lassert(condition, fall_text)
+#define lassert(condition, ...)
 // #define log(log_type, format, ...)
 #define ON_LOGS(...)  
 #define logctor(logfile_name, ...)

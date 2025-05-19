@@ -331,7 +331,7 @@ void GetBlockNamesTable(Tree *tree, Node *block, Node *cur_node)
         if (named_node->type == NODE_VAR)
             named_node->val.prop_name = NewNameInTable(table, named_node->val.prop_name->name);
 
-        else
+        else // if type == NODE_FUNC
             named_node->val.prop_name = NewNameInTable(&tree->names_table, named_node->val.prop_name->name);
 
         named_node->val.prop_name->is_init = true;
@@ -361,9 +361,9 @@ void MakeNamesTablesForBlocks(Tree *tree, Node *cur_node)
 
         Node *func_node = cur_node->left->left->left;
         func_node->val.prop_name->is_init = true;
-        func_node->val.prop_name->args_count = GetCountOfArgs(cur_node->left->left);
+        func_node->val.prop_name->args_count = GetFuncArgsNum(cur_node->left->left);
 
-        fprintf(stderr, "count of args = %lu\n\n", func_node->val.prop_name->args_count);
+        // fprintf(stderr, "count of args = %lu\n\n", func_node->val.prop_name->args_count);
 
         GetBlockNamesTable(tree, block_node, cur_node->left->left->right);
 
@@ -371,11 +371,11 @@ void MakeNamesTablesForBlocks(Tree *tree, Node *cur_node)
 
         MakeNamesTablesForBlocks(tree, cur_node->right);
 
-        fprintf(stderr, "size of names table = %lu\n", block_node->val.block.names_table.size);
-        for (size_t i = 0; i < block_node->val.block.names_table.size; i++)
-        {
-            fprintf(stderr, "init node = '%s', num = %lu\n", block_node->val.block.names_table.names[i].name, block_node->val.block.names_table.names[i].number);
-        }
+        // fprintf(stderr, "size of names table = %lu\n", block_node->val.block.names_table.size);
+        // for (size_t i = 0; i < block_node->val.block.names_table.size; i++)
+        // {
+        //     fprintf(stderr, "var '%s', num = %lu\n", block_node->val.block.names_table.names[i].name, block_node->val.block.names_table.names[i].number);
+        // }
     }
 
     else if (cur_node->type == NODE_NEW_BLOCK)
@@ -390,11 +390,6 @@ void MakeNamesTablesForBlocks(Tree *tree, Node *cur_node)
         tree->cur_block = cur_node;
 
         GetBlockNamesTable(tree, cur_node, cur_node->left);
-
-        for (size_t i = 0; i < cur_node->val.block.names_table.size; i++)
-        {
-            fprintf(stderr, "init node = '%s', num = %lu\n", cur_node->val.block.names_table.names[i].name, cur_node->val.block.names_table.names[i].number + cur_node->val.block.shift);
-        }
 
         tree->cur_block = tree->cur_block->val.block.prev_block;  
     }
@@ -462,11 +457,11 @@ Node *GetNodeInfoBySymbol(char *sym, Tree *tree, Node *cur_node, SymbolMode mode
     return cur_node;
 }
 
-size_t GetCountOfArgs(Node *func_node)
+size_t GetFuncArgsNum(Node *func_t_indicator_node)
 {
     size_t res_count = 0;
 
-    Node *cur_comma = func_node->right;
+    Node *cur_comma = func_t_indicator_node->right;
 
     while (cur_comma != NULL)
     {
@@ -510,7 +505,7 @@ void SyntaxError(Tree *tree, Node *cur_node, const char *error, const char *file
     TREE_DUMP(tree);
 
     fprintf(stderr, "SyntaxError called in %s:%d %s()\n"
-                    "Error: expected %s   (position %lu:%lu)\n",
+                    "Error: %s   (position %lu:%lu)\n",
                     file, line, func, error, cur_node->born_line, cur_node->born_column);
 
                     // Syntax error: forgot to put ) here (file ...,line ...)   // TODO ??

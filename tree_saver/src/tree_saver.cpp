@@ -29,7 +29,7 @@ FILE *GetOutputSaveFile(const int argc, const char *argv[])
 void WriteTreeData(Node *cur_node, FILE *dest_file)
 {
     fprintf(dest_file, "%s ", NodeValToStr(cur_node));
-    fprintf(stderr, "write int file  '%s' \n", NodeValToStr(cur_node));
+    // fprintf(stderr, "write int file  '%s' \n", NodeValToStr(cur_node));
 
     if (cur_node != NULL)
     {

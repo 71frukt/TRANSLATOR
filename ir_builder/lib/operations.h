@@ -10,13 +10,12 @@ enum IrOperandType
     IR_OPERAND_TYPE_ARG         = 1 << 4,
     IR_OPERAND_TYPE_LOCAL_LABEL = 1 << 5,
     IR_OPERAND_TYPE_FUNC_LABEL  = 1 << 6,
-    // IR_OPERAND_TYPE_OPERATION   = 1 << 7,
 };
 
 
 enum IrOperationType
 {
-    IR_OPERATION_TYPE_SUM     ,
+    IR_OPERATION_TYPE_ADD     ,
     IR_OPERATION_TYPE_SUB     ,
     IR_OPERATION_TYPE_MUL     ,
     IR_OPERATION_TYPE_DIV     ,
@@ -33,7 +32,7 @@ enum IrOperationType
 
 enum IrBlockType
 {
-    IR_BLOCK_TYPE_CALL_FUNCTION ,
+    IR_BLOCK_TYPECALL_FUNCTION ,
     IR_BLOCK_TYPE_FUNCTION_BODY ,
     IR_BLOCK_TYPE_COND_JUMP     ,
     IR_BLOCK_TYPE_NEG_COND_JUMP ,
@@ -54,7 +53,7 @@ enum IrBlockType
 // ||  Operation             ||  Tmp or var         ||  operation  ||  None        ||  Var or Tmp or Num    ||  Var or Tmp or Num   ||
 // ||  Local label           ||  None               ||  None       ||  Local Label ||  None                 ||  None                ||
 // ||  Return                ||  Tmp or var or Num  ||  None       ||  None        ||  None                 ||  None                ||
-// ||  Call sys function     ||  None               ||  None       ||  None        ||  None                 ||  None                ||
+// ||  Call sys function     ||  Tmp                ||  None       ||  Func label  ||  None                 ||  None                ||
 ////--------------------------------------------------------------------------------------------------------------------------------////
 
 

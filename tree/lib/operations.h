@@ -103,7 +103,7 @@ const int MATH_OPERATIONS_NUM = 17;
 
 const MathOperation MathOperations[MATH_OPERATIONS_NUM] = 
 {
-    { TREE_BOOL_EQ,         "будто",    "==",   "JNE",  BINARY, INFIX,  IsEqual    },
+    { TREE_BOOL_EQ,         "==",       "==",   "JNE",  BINARY, INFIX,  IsEqual    },
     { TREE_BOOL_NEQ,        "!=",       "!=",   "JE",   BINARY, INFIX,  IsNotEqual },
     { TREE_BOOL_LOWER,      "<",        "\\<",  "JA",   BINARY, INFIX,  IsBelow    },         // JA для JB специально 
     { TREE_BOOL_GREATER,    ">",        "\\>",  "JB",   BINARY, INFIX,  IsAbove    },         // JB для JA специально   
@@ -160,7 +160,7 @@ const ManageElem Managers[MANAGE_ELEMS_NUM] =
     { CLOSE_BLOCK_BRACKET, "}", "}"   },
     { OPEN_EXPR_BRACKET,   "(", "("   },
     { CLOSE_EXPR_BRACKET,  ")", ")"   },
-    { EOT,                 "$", "EOT" }
+    { EOT,                 "$", "EOT" },
 };
 
 //------------------------------------------------------------------------------------------------------------//
@@ -168,20 +168,22 @@ const ManageElem Managers[MANAGE_ELEMS_NUM] =
 
 enum KeyWord_enum
 {
-    TREE_VAR_T_INDICATOR,
-    TREE_FUNC_T_INDICATOR,
-    TREE_FUNC_CALL,
-    TREE_INIT,
-    TREE_NEW_EXPR,
-    TREE_COMMA,
-    TREE_NEW_FUNC,
-    TREE_ASSIGN,
-    TREE_IF,
-    TREE_WHILE,
-    TREE_RETURN,
-    TREE_SPU_IN,
-    TREE_SPU_OUT,
+    TREE_VAR_T_INDICATOR  ,
+    TREE_FUNC_T_INDICATOR ,
+    TREE_FUNC_CALL        ,
+    TREE_INIT             ,
+    TREE_NEW_EXPR         ,
+    TREE_COMMA            ,
+    TREE_NEW_FUNC         ,
+    TREE_ASSIGN           ,
+    TREE_IF               ,
+    TREE_WHILE            ,
+    TREE_RETURN           ,
+    TREE_SPU_IN           ,
+    TREE_SPU_OUT          ,
 };
+
+#define IS_SYS_CALL(key_word_node_)  (key_word_node_->type == NODE_KEY_WORD && (key_word_node_.val.key_word.name == TREE_SPU_IN || key_word_node_.val.key_word.name == TREE_SPU_OUT))
 
 struct KeyWord
 {
