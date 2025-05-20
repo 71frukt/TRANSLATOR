@@ -80,7 +80,8 @@ static IrBackendFuncRes MakePreambleAsm(FILE *dest_file)
 
     fprintf(dest_file,  "section .text  \n"
                         "global _start  \n\n"
-                        "_start:        \n");
+                        "_start:        \n"
+                        MOV_(RBP_, RSP_));
 
     
     Label main_func_label = {.func = {.num = MAIN_FUNC_NUM, .arg_cnt = MAIN_FUNC_ARG_CNT}};
@@ -158,6 +159,8 @@ static IrBackendFuncRes AssignVarToAsm(IrOperand var_operand, IrOperand source_o
 
     else    // if type == num
         fprintf(dest_file, MOV_(_VAR_, _NUM_), var_operand.val.var, source_operand.val.num);
+        
+    fprintf(dest_file, SUB_(RSP_, "8" COMM_("place for var")));
 
     return IR_BACK_FUNC_OK;
 }
@@ -165,7 +168,7 @@ static IrBackendFuncRes AssignVarToAsm(IrOperand var_operand, IrOperand source_o
 static IrBackendFuncRes AssignArgToAsm(IrOperand arg_operand, IrOperand source_operand, FILE *dest_file)
 {
     lassert(arg_operand.type == IR_OPERAND_TYPE_ARG);
-    lassert(source_operand.type == IR_OPERAND_TYPE_NUM || source_operand.type == IR_OPERAND_TYPE_TMP);
+    lassert(source_operand.type == IR_OPERAND_TYPE_NUM || source_operand.type == IR_OPERAND_TYPE_TMP || source_operand.type == IR_OPERAND_TYPE_VAR);
     lassert(dest_file);
 
     if (arg_operand.val.arg == 0)   // the first arg of func call -> free space for future ret addr
@@ -266,8 +269,14 @@ static IrBackendFuncRes CondJumpToAsm(const IrBlock *local_label_block, FILE *de
     IrOperand label_operand     = local_label_block->operand_1;
     IrOperand condition_operand = local_label_block->operand_2;
 
-    lassert(label_operand.type     == IR_OPERAND_TYPE_LOCAL_LABEL);
-    lassert(condition_operand.type == IR_OPERAND_TYPE_TMP);
+    lassert(label_operand.type     == IR_OPERAND_TYPE_LOCAL_LABEL, "label num = '%d'", label_operand.val);
+    lassert(condition_operand.type == IR_OPERAND_TYPE_TMP || condition_operand.type == IR_OPERAND_TYPE_NUM);
+
+    if (condition_operand.type == IR_OPERAND_TYPE_NUM)
+    {
+        fprintf(dest_file, _JMP_, label_operand.val.label.local);
+        return IR_BACK_FUNC_OK;
+    }
 
     GetOperandValToRegisterAsm(dest_file, condition_operand, RAX_);
 
@@ -290,6 +299,7 @@ static IrBackendFuncRes CallFuncToAsm(const IrBlock *call_func_block, FILE *dest
     lassert(func_label.type == IR_OPERAND_TYPE_FUNC_LABEL);
 
     fprintf(dest_file, FUNC_CALL_, func_label.val.label.func.num, func_label.val.label.func.arg_cnt);
+    fprintf(dest_file, PUSH_(RAX_));        // ret val in stack
 
     // ret_addr to space before args  in FuncBodyToAsm()
 
@@ -320,6 +330,9 @@ static IrBackendFuncRes FuncReturnToAsm(const IrBlock *func_return_block, FILE *
     lassert(func_return_block && func_return_block->block_type_info->type == IR_BLOCK_TYPE_RETURN);
     lassert(dest_file);
 
+    IrOperand ret_operand = func_return_block->ret_operand;
+    GetOperandValToRegisterAsm(dest_file, ret_operand, RAX_);
+
     fprintf(dest_file, MOV_(RSP_, RBP_));
     fprintf(dest_file, ADD_(RSP_, "8"));
     fprintf(dest_file, POP_(RBP_));
@@ -334,9 +347,14 @@ static IrBackendFuncRes SyscallToAsm(const IrBlock *syscall_block, FILE *dest_fi
     lassert(syscall_block && syscall_block->block_type_info->type == IR_BLOCK_TYPE_SYSCALL);
     lassert(dest_file);
 
-    GetOperandValToRegisterAsm(dest_file, syscall_block->operand_1, RAX_);  // syscall arg in rax
+    if (syscall_block->operand_1.type != IR_OPERAND_TYPE_NONE)
+        GetOperandValToRegisterAsm(dest_file, syscall_block->operand_1, RAX_);  // syscall arg in rax
 
     fprintf(dest_file, _MY_SYSCALL_, syscall_block->label.sys);
+
+    if (syscall_block->ret_operand.type != IR_OPERAND_TYPE_NONE)
+        fprintf(dest_file, PUSH_(RAX_));        // ret val in stack
+
 
     return IR_BACK_FUNC_OK;
 }
@@ -409,7 +427,8 @@ static void BoolOperationInRaxAsm(FILE *dest_file, IrOperand operand1, IrOperand
     GetOperandValToRegisterAsm(dest_file, operand1, RAX_);
     fprintf(dest_file, CMP_(RAX_, RBX_));
     fprintf(dest_file, MOV_(RAX_, "0"));
-    fprintf(dest_file, "\t%s" RAX_ ", 1\n", cond_move_sym);
+    fprintf(dest_file, MOV_(RBX_, "1"));
+    fprintf(dest_file, "\t%s" RAX_ ", " RBX_ "\n", cond_move_sym);
 }
 
 

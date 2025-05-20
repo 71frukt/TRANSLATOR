@@ -134,8 +134,8 @@ const IrOperationTypeInfo *GetIrOperationTypeInfo(IrOperationType operation_type
 
 IrFuncRes IrCtor(IR_struct *ir, const size_t start_capacity)
 {
-    lassert(ir);
-    lassert(start_capacity > 0);
+    lassert(ir, "");
+    lassert(start_capacity > 0, "");
 
     ir->blocks = (IrBlock *) calloc(start_capacity, sizeof(IrBlock));
     

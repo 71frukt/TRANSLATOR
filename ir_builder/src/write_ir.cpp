@@ -27,6 +27,7 @@ FILE *GetInputAST(const int argc, const char *argv[])
 IrFuncRes PrintIrBlock(IrBlock *block, FILE *dest_file)
 {
     lassert(block);
+    lassert(dest_file);
     
     const char *const block_name     = block->block_type_info->debug_name;
     const char *const operation_name = block->operation_info->debug_name;

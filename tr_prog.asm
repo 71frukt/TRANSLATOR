@@ -2,6 +2,14 @@ section .text
     global _start
 
 _start:
+    push 5
+    push 4
+    push 3
+    pop  rax
+    pop  rax
+    pop  rax
+
+
     ; Инициализация числа для вывода
     mov rax, -777  ; Число, которое будем выводить
     call printf

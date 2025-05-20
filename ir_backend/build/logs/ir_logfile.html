@@ -64,20 +64,42 @@
 	}                                                        
                                                                                                                         
 	</style>                                                                                                                
+	<span class=cyan>info:	</span>	<span class=white>arg cnt = 1</span>
+
+	<span class=cyan>info:	</span>	<span class=white>arg cnt = 1</span>
+
 	<span class=SkyBlue>Dumped</span> from <span class=cyan>src/main.cpp:30 (main)
 </span>
 	<span class=SkyBlue>IR dump</span>
-	IR [0x703b7a300020]
+	IR [0x70fb8ef00020]
 	{
-		size     = 3
+		size     = 17
 		capacity = 50
 		IR code [0x529000000200]:
 
 	---------------------- CODE --------------------------------------
 		
 	func(func_777_1)		# int MAIN_HOI(1 args)
-		syscall(printf, 666)
-		return(777)
+		syscall(tmp_0, scanf)
+		assign(var_1, tmp_0)		# int var
+		assign(arg_0, var_1)
+		call_func(tmp_1, func_3_1)		# call fact(1 args)
+		syscall(printf, tmp_1)
+		return(666)
+
+		
+	func(func_3_1)		# int fact(1 args)
+		operation(tmp_2, <, var_0, 1)
+		neg_cond_jump(label_0, tmp_2)
+		return(1)
+
+		
+	local_label(label_0)
+		operation(tmp_3, -, var_0, 1)
+		assign(arg_0, tmp_3)
+		call_func(tmp_4, func_3_1)		# call fact(1 args)
+		operation(tmp_5, *, var_0, tmp_4)
+		return(tmp_5)
 
 	------------------------------------------------------------------
 

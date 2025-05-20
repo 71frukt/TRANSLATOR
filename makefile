@@ -3,7 +3,7 @@ USE_DEBUG ?= true
 RES_SPU_ASM_NAME = ../../res_asm.asm 		# the path relative to the compiler folder
 # RES_TRANSLATOR_ASM_NAME = translator.asm
 
-SUBPROJECTS  = frontend middlend backend tree tree_saver compiler spu
+SUBPROJECTS  = frontend middlend backend tree tree_saver compiler spu ir_backend
 
 # *proj_name in capital letters*_DIR = ***
 FRONTEND_DIR   = frontend
@@ -13,6 +13,7 @@ TREE_DIR 	   = tree
 TREE_SAVER_DIR = tree_saver
 COMPILER_DIR   = SPU/compiler
 SPU_DIR 	   = SPU/spu
+IR_BACKEND_DIR = ir_backend
 
 
 
@@ -55,3 +56,8 @@ $(foreach proj, $(SUBPROJECTS), 														   									\
 		$$(MAKE) EXECUTABLE=$(proj) USE_DEBUG=$(USE_DEBUG) run -C $$($$(shell echo $(proj) | tr 'a-z' 'A-Z')_DIR)     		\
 	)																														\
 )
+
+run_asm:
+	$(MAKE) -f makeasm run
+
+run_trans: run_frontend run_ir_backend run_asm

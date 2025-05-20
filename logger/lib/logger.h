@@ -33,6 +33,10 @@ const char *GetFileFullPath(const char *const file_name, const char *const path)
 
 #define log(log_type, format, ...)  LogPrint(__FILE__, __LINE__, __func__, log_type, format, ##__VA_ARGS__)
 
+#define IS_EMPTY_(...) ( sizeof( (char[]){#__VA_ARGS__} ) == 1 )
+#define EMPTY_IF_NONE_(...) IS_EMPTY_(__VA_ARGS__) ? "" : (__VA_ARGS__)
+
+
 #ifdef USE_LOGS
 
 #define lassert(condition, ...)                                 \

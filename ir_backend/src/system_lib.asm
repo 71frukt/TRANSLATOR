@@ -46,4 +46,66 @@ print_next_digit:
     test rcx, rcx
     jnz  print_next_digit
 
+    push 0xA            ; \n
+    mov  rsi, rsp
+    mov  rax, 1         ; sys_write
+    mov  rdi, 1         ; stdout
+    mov  rdx, 1         ; len = 1
+    syscall
+    add  rsp, 8         ; clear stack
+
+    ret
+
+
+;=================================================================================
+; scanf
+;
+; Input:    none
+; Output:   rax = decimal number
+; Destroys: rax, rbx, rcx, rsi, rdi
+;=================================================================================
+scanf:
+    xor rax, rax     ; Обнуляем результат
+    mov rbx, 1       ; Множитель знака (1 или -1)
+
+.read_loop:
+    ; Читаем 1 символ
+    push rax
+    push 0
+    mov rsi, rsp
+    xor rax, rax     ; sys_read
+    xor rdi, rdi     ; stdin
+    mov rdx, 1       ; 1 символ
+
+    syscall
+    pop rcx
+
+    pop rax
+
+    test rcx, rcx
+    jz   .return
+
+    ; Обрабатываем знак
+    cmp cl, '-'
+    je .negative
+    cmp cl, '+'
+    je .read_loop
+    ; ; Проверяем цифру
+    cmp cl, '0'
+    jb .return
+    cmp cl, '9'
+    ja .return
+
+    ; Есть цифра
+    imul rax, 10
+    sub  cl, '0'
+    add  rax, rcx
+    jmp  .read_loop
+
+.negative:
+    neg rbx
+    jmp .read_loop
+
+.return:
+    imul rax, rbx
     ret

@@ -2,22 +2,82 @@ section .text
 global _start  
 
 _start:        
-	sub rsp , 8
+	mov  rbp , rsp 
+	sub  rsp , 8
 	push rbp 
 	push 0 
-	mov rbp , rsp 
+	mov  rbp , rsp 
 	call func_777_1 
-	mov rax , 60
+	push rax 
+	mov  rax , 60
+	mov  rdi , 0
 	syscall
+
 func_777_1 : 
-	pop rax 	; ret addr -> rax
-	mov [rbp + 2 * 8], rax 
-	mov rax , 777 
+	pop  rax 	; ret addr -> rax
+	mov  [rbp + 2 * 8], rax 
+	call scanf
+
+	push rax 
+	pop  rax 
+	mov  qword [rbp - 1 * 8], rax 
+	sub  rsp , 8	; place for var
+	sub  rsp , 8
+	push rbp 
+	push qword qword [rbp - 1 * 8]
+	mov  rbp , rsp 
+	call func_3_1 
+	push rax 
+	pop  rax 
 	call printf
 
-	mov rsp , rbp 
-	add rsp , 8
-	pop rbp 
+	mov  rax , 666 
+	mov  rsp , rbp 
+	add  rsp , 8
+	pop  rbp 
+	ret 
+
+
+func_3_1 : 
+	pop  rax 	; ret addr -> rax
+	mov  [rbp + 2 * 8], rax 
+	mov  rbx , 1 
+	mov  rax , qword [rbp - 0 * 8]
+	cmp  rax , rbx 
+	mov  rax , 0
+	mov  rbx , 1
+	cmovl rax , rbx 
+	push rax 
+	pop  rax 
+	test rax , rax 
+	jz  local_0 
+	mov  rax , 1 
+	mov  rsp , rbp 
+	add  rsp , 8
+	pop  rbp 
+	ret 
+
+
+local_0 :
+	mov  rbx , 1 
+	mov  rax , qword [rbp - 0 * 8]
+	sub  rax , rbx 
+	push rax 
+	pop  rax 
+	sub  rsp , 8
+	push rbp 
+	push rax 
+	mov  rbp , rsp 
+	call func_3_1 
+	push rax 
+	pop  rbx 
+	mov  rax , qword [rbp - 0 * 8]
+	mul  rbx 
+	push rax 
+	pop  rax 
+	mov  rsp , rbp 
+	add  rsp , 8
+	pop  rbp 
 	ret 
 
 
@@ -71,4 +131,66 @@ print_next_digit:
     test rcx, rcx
     jnz  print_next_digit
 
+    push 0xA            ; \n
+    mov  rsi, rsp
+    mov  rax, 1         ; sys_write
+    mov  rdi, 1         ; stdout
+    mov  rdx, 1         ; len = 1
+    syscall
+    add  rsp, 8         ; clear stack
+
+    ret
+
+
+;=================================================================================
+; scanf
+;
+; Input:    none
+; Output:   rax = decimal number
+; Destroys: rax, rbx, rcx, rsi, rdi
+;=================================================================================
+scanf:
+    xor rax, rax     ; Обнуляем результат
+    mov rbx, 1       ; Множитель знака (1 или -1)
+
+.read_loop:
+    ; Читаем 1 символ
+    push rax
+    push 0
+    mov rsi, rsp
+    xor rax, rax     ; sys_read
+    xor rdi, rdi     ; stdin
+    mov rdx, 1       ; 1 символ
+
+    syscall
+    pop rcx
+
+    pop rax
+
+    test rcx, rcx
+    jz   .return
+
+    ; Обрабатываем знак
+    cmp cl, '-'
+    je .negative
+    cmp cl, '+'
+    je .read_loop
+    ; ; Проверяем цифру
+    cmp cl, '0'
+    jb .return
+    cmp cl, '9'
+    ja .return
+
+    ; Есть цифра
+    imul rax, 10
+    sub  cl, '0'
+    add  rax, rcx
+    jmp  .read_loop
+
+.negative:
+    neg rbx
+    jmp .read_loop
+
+.return:
+    imul rax, rbx
     ret

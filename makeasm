@@ -1,11 +1,14 @@
 ASM = nasm
 ASMFLAGS = -f elf64
-LD = ld
+LD = ld -e _start
 LDFLAGS =
 
-TARGET = tr_prog
+TARGET = translator
 
 all: $(TARGET)
+
+run: $(TARGET)
+	./$(TARGET)
 
 $(TARGET): $(TARGET).o
 	$(LD) $(LDFLAGS) -o $@ $^

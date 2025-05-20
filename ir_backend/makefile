@@ -62,7 +62,7 @@ THIS_PROJ_DEP  = $(patsubst $(SRC_DIR)/%.cpp,$(DEP_DIR)/%.d,$(THIS_PROJ_CPP))
 
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEP_DIR)/$*.d
 
-EXECUTABLE ?= backend_ir
+EXECUTABLE ?= ir_backend
 TARGET      = $(BUILD_DIR)/$(EXECUTABLE) 
 
 FLAGS  = -Wall -Wextra -Weffc++ -Waggressive-loop-optimizations -Wc++14-compat -Wmissing-declarations -Wcast-align -Wcast-qual                									\
