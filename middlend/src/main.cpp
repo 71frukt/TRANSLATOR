@@ -21,6 +21,7 @@ int main(const int argc, const char *argv[])
     WriteTreeData(code_tree.root_ptr, dest_file);
     fclose(dest_file);
 
+    TreeDtor(&code_tree);
     fprintf(stderr, "\n\nEND MIDDLEND\n\n");
 
     return 0;

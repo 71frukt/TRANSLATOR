@@ -31,6 +31,8 @@ static IrBackendFuncRes AddSystemLib (FILE *dest_file, const char *const lib_fil
 static void AddOperationInRaxAsm  (FILE *dest_file, IrOperand operand1, IrOperand operand2);
 static void SubOperationInRaxAsm  (FILE *dest_file, IrOperand operand1, IrOperand operand2);
 static void MulOperationInRaxAsm  (FILE *dest_file, IrOperand operand1, IrOperand operand2);
+static void DivOperationInRaxAsm  (FILE *dest_file, IrOperand operand1, IrOperand operand2);
+static void SqrtOperationInRaxAsm (FILE *dest_file, IrOperand operand1, IrOperand operand2);
 static void BoolOperationInRaxAsm (FILE *dest_file, IrOperand operand1, IrOperand operand2, const char *const cond_move_sym);
 
 static void GetOperandValToRegisterAsm(FILE *dest_file, IrOperand operand, const char *const dest_register);
@@ -178,7 +180,7 @@ static IrBackendFuncRes AssignArgToAsm(IrOperand arg_operand, IrOperand source_o
         fprintf(dest_file, PUSH_(_NUM_), source_operand.val.num);
 
     else if (source_operand.type == IR_OPERAND_TYPE_VAR)
-        fprintf(dest_file, PUSH_(QWORD_SYM _VAR_), source_operand.val.var);
+        fprintf(dest_file, PUSH_(_VAR_), source_operand.val.var);
 
     // else argument is inited by tmp that is already in stack
 
@@ -207,10 +209,10 @@ static IrBackendFuncRes FuncFirstArgToAsm(IrOperand arg_source_operand, FILE *de
     {
         fprintf(dest_file, SUB_(RSP_, "8"));
         fprintf(dest_file, PUSH_(RBP_));
-        fprintf(dest_file, PUSH_(QWORD_SYM _VAR_), arg_source_operand.val.var);
+        fprintf(dest_file, PUSH_(_VAR_), arg_source_operand.val.var);
     }
 
-    fprintf(dest_file, MOV_(RBP_, RSP_));
+    fprintf(dest_file, MOV_(RAX_, RSP_));
 
     return IR_BACK_FUNC_OK;
 }
@@ -236,9 +238,9 @@ static IrBackendFuncRes OperationBlockToAsm(const IrBlock *operation_block, FILE
     case IR_OPERATION_TYPE_ADD     :  AddOperationInRaxAsm  (dest_file, operand1, operand2);                break;
     case IR_OPERATION_TYPE_SUB     :  SubOperationInRaxAsm  (dest_file, operand1, operand2);                break;
     case IR_OPERATION_TYPE_MUL     :  MulOperationInRaxAsm  (dest_file, operand1, operand2);                break;
+    case IR_OPERATION_TYPE_DIV     :  DivOperationInRaxAsm  (dest_file, operand1, operand2);                break;
+    case IR_OPERATION_TYPE_SQRT    :  SqrtOperationInRaxAsm (dest_file, operand1, operand2);                break;
 
-
-    case IR_OPERATION_TYPE_DIV     :
     case IR_OPERATION_TYPE_POW     :
     case IR_OPERATION_TYPE_NONE    :
     default                        :    return IR_BACK_FUNC_FAIL;
@@ -298,6 +300,7 @@ static IrBackendFuncRes CallFuncToAsm(const IrBlock *call_func_block, FILE *dest
     IrOperand func_label = call_func_block->operand_1;
     lassert(func_label.type == IR_OPERAND_TYPE_FUNC_LABEL);
 
+    fprintf(dest_file, MOV_(RBP_, RAX_));
     fprintf(dest_file, FUNC_CALL_, func_label.val.label.func.num, func_label.val.label.func.arg_cnt);
     fprintf(dest_file, PUSH_(RAX_));        // ret val in stack
 
@@ -417,6 +420,33 @@ static void MulOperationInRaxAsm(FILE *dest_file, IrOperand operand1, IrOperand 
     fprintf(dest_file, MUL_(RBX_));
 }
 
+
+static void DivOperationInRaxAsm(FILE *dest_file, IrOperand operand1, IrOperand operand2)
+{
+    lassert(dest_file);
+
+    fprintf(dest_file, XOR_(RDX_, RDX_));
+    GetOperandValToRegisterAsm(dest_file, operand2, RBX_);
+    GetOperandValToRegisterAsm(dest_file, operand1, RAX_);
+
+    fprintf(dest_file, "\tcqo\n");
+
+    fprintf(dest_file, DIV_(RBX_));
+}
+
+static void SqrtOperationInRaxAsm(FILE *dest_file, IrOperand operand1, IrOperand operand2)
+{
+    lassert(dest_file);
+
+    GetOperandValToRegisterAsm(dest_file, operand1, RBX_);
+
+    fprintf(dest_file, "\tcall " SYS_SQRT_SYM "\n");
+
+    // fprintf(dest_file, XOR_(RDX_, RDX_));
+    // GetOperandValToRegisterAsm(dest_file, operand1, RAX_);
+
+    // fprintf(dest_file, DIV_(RBX_));
+}
 
 static void BoolOperationInRaxAsm(FILE *dest_file, IrOperand operand1, IrOperand operand2, const char *const cond_move_sym)
 {

@@ -7,7 +7,7 @@
 #include "operations.h"
 
 const int TREE_ALLOC_MARKS_NUM = 20;
-const int START_TREE_SIZE      = 100;
+const int START_TREE_SIZE      = 1000;
 const int TOKEN_LEN            = 50;
 
 const int START_NAMES_TABLE_CAPA = 10;

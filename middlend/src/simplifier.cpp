@@ -7,30 +7,32 @@ void SimplifyTree(Tree *code_tree)
 {
     TREE_DUMP(code_tree);
 
-    bool was_simplified = false;
+    // bool was_simplified = false;
 
-    do
-    {
-        was_simplified = false;
-        fprintf(stderr, "simplify\n");
-        SimplifyConstants  (code_tree, code_tree->root_ptr, &was_simplified);
-        // DelNeutralElements (code_tree, code_tree->root_ptr, &was_simplified);
-    }
-    while (was_simplified);
-
+    // do
+    // {
+    // was_simplified = false;
+    // fprintf(stderr, "simplify\n");
+    SimplifyConstants  (code_tree, code_tree->root_ptr);
+    DelNeutralElements (code_tree, code_tree->root_ptr);
     TREE_DUMP(code_tree);
+    // }
+    // while (was_simplified);
+
 }
 
-Node *SimplifyConstants(Tree *code_tree, Node *cur_node, bool *was_simplified)
+// Node *SimplifyNode(Tree *code_tree, Node *cur_node)
+
+Node *SimplifyConstants(Tree *code_tree, Node *cur_node)
 {
     assert(code_tree);
-    assert(was_simplified);
+    
 
     if (cur_node == NULL || cur_node->type == NODE_NUM || cur_node->type == NODE_VAR)
         return cur_node;
 
-    cur_node->left  = SimplifyConstants(code_tree, cur_node->left,  was_simplified);
-    cur_node->right = SimplifyConstants(code_tree, cur_node->right, was_simplified);
+    cur_node->left  = SimplifyConstants(code_tree, cur_node->left);
+    cur_node->right = SimplifyConstants(code_tree, cur_node->right);
 
     
     if (cur_node->type == NODE_MATH_OP)
@@ -38,11 +40,7 @@ Node *SimplifyConstants(Tree *code_tree, Node *cur_node, bool *was_simplified)
         bool args_are_num = (cur_node->left->type == NODE_NUM && (cur_node->val.math_op->type == UNARY || cur_node->right->type == NODE_NUM));
 
         if (args_are_num)
-        {
-            *was_simplified = true;
             CalculateNode(code_tree, cur_node);
-            
-        }
     }
 
     return cur_node;
@@ -75,51 +73,46 @@ Node *CalculateNode(Tree *tree, Node *op_node)
     return op_node;
 }
 
-Node *DelNeutralElements(Tree *code_tree, Node *cur_node, bool *was_simplified)
+Node *DelNeutralElements(Tree *code_tree, Node *cur_node)
 {
     assert(code_tree);
-    assert(was_simplified);
+    if (cur_node == NULL)
+        return cur_node;
+    
+    cur_node->left  = DelNeutralElements(code_tree, cur_node->left );
+    cur_node->right = DelNeutralElements(code_tree, cur_node->right);
 
-    if (cur_node == NULL || cur_node->type == NODE_NUM || cur_node->type == NODE_VAR)
+    if (cur_node->type != NODE_KEY_WORD)
         return cur_node;
 
-    cur_node->left  = DelNeutralElements(code_tree, cur_node->left,  was_simplified);
-    cur_node->right = DelNeutralElements(code_tree, cur_node->right, was_simplified);
-
-    if (cur_node->type == NODE_MATH_OP)
+    if (cur_node->val.key_word->name == TREE_IF || cur_node->val.key_word->name == TREE_WHILE)
     {
-        MathOpSimplifierInfos[cur_node->val.math_op->num].simpl_vars_func(code_tree, cur_node, was_simplified);
-    }
-
-    else if (cur_node->type == NODE_KEY_WORD)
-    {
-        if (cur_node->val.key_word->name == TREE_IF || cur_node->val.key_word->name == TREE_WHILE)
+        if (cur_node->left->type == NODE_NUM && cur_node->left->val.num == 0)
         {
-            if (cur_node->left->type == NODE_NUM && cur_node->left->val.num == 0)
-            {
-                RemoveSubtree(code_tree, &cur_node);
-                return NULL;
-            }
+            RemoveSubtree(code_tree, &cur_node);
+            return NULL;
+        }
 
-            else if (cur_node->left->type == NODE_NUM && cur_node->left->val.num != 0)
-            {
-                if (cur_node->val.key_word->name == TREE_WHILE)
-                    return cur_node;
+        else if (cur_node->left->type == NODE_NUM && cur_node->left->val.num != 0)
+        {
+            if (cur_node->val.key_word->name == TREE_WHILE)
+                return cur_node;
 
-                RemoveSubtree (code_tree, &cur_node->left);
+            // else if it's 'if'
 
-                Node *block_node = cur_node->right;
-                *cur_node = *block_node;
+            RemoveNode(code_tree, &cur_node->left);
 
-                RemoveNode  (code_tree, &block_node);
-            }
+            Node *block_node = cur_node->right;
+            *cur_node = *block_node;
+
+            RemoveNode(code_tree, &block_node);
         }
     }
 
     return cur_node;
 }
 
-Node *SimpleBoolEqVars(Tree *tree, Node *cur_node, bool *was_simplified)      // ! assert'ы перед вызовом функций
+Node *SimpleBoolEqVars(Tree *tree, Node *cur_node)      // ! assert'ы перед вызовом функций
 {
     Node *arg_1 = cur_node->left;
     Node *arg_2 = cur_node->right;
@@ -135,14 +128,12 @@ Node *SimpleBoolEqVars(Tree *tree, Node *cur_node, bool *was_simplified)      //
 
         cur_node->type = NODE_NUM;
         cur_node->val.num = 1;
-
-        *was_simplified = true;
     }
 
     return cur_node;
 }
 
-Node *SimpleAddVars(Tree *tree, Node *cur_node, bool *was_simplified)
+Node *SimpleAddVars(Tree *tree, Node *cur_node)
 {
     Node *arg_1 = cur_node->left;
     Node *arg_2 = cur_node->right;
@@ -156,8 +147,6 @@ Node *SimpleAddVars(Tree *tree, Node *cur_node, bool *was_simplified)
 
         RemoveNode(tree, &arg_1);
         RemoveNode(tree, &arg_2);
-
-        *was_simplified = true;
     }
 
     else if (arg_2->type == NODE_NUM && arg_2->val.num == 0)     // f(x) + 0 --> f(x)
@@ -166,14 +155,12 @@ Node *SimpleAddVars(Tree *tree, Node *cur_node, bool *was_simplified)
 
         RemoveNode(tree, &arg_1);
         RemoveNode(tree, &arg_2);
-
-        *was_simplified = true;
     }
 
     return cur_node;
 }
 
-Node *SimpleSubVars(Tree *tree, Node *cur_node, bool *was_simplified)
+Node *SimpleSubVars(Tree *tree, Node *cur_node)
 {
     Node *arg_1 = cur_node->left;
     Node *arg_2 = cur_node->right;
@@ -188,13 +175,13 @@ Node *SimpleSubVars(Tree *tree, Node *cur_node, bool *was_simplified)
         RemoveNode(tree, &arg_1);
         RemoveNode(tree, &arg_2);    
 
-        *was_simplified = true;    
+            
     }
 
     return cur_node;
 }
 
-Node *SimpleMulVars(Tree *tree, Node *cur_node, bool *was_simplified)
+Node *SimpleMulVars(Tree *tree, Node *cur_node)
 {
     Node *arg_1 = cur_node->left;
     Node *arg_2 = cur_node->right;
@@ -212,7 +199,7 @@ Node *SimpleMulVars(Tree *tree, Node *cur_node, bool *was_simplified)
         RemoveSubtree(tree, &arg_1);
         RemoveSubtree(tree, &arg_2);       
 
-        *was_simplified = true; 
+         
     }
 
     else if (arg_1->type == NODE_NUM && arg_1->val.num == 1)          // 1 * f(x) --> f(x)
@@ -222,7 +209,7 @@ Node *SimpleMulVars(Tree *tree, Node *cur_node, bool *was_simplified)
         RemoveNode(tree, &arg_1);
         RemoveNode(tree, &arg_2);        
 
-        *was_simplified = true;
+        
     }
 
     else if (arg_2->type == NODE_NUM && arg_2->val.num == 1)     // f(x) * 1 --> f(x)
@@ -232,13 +219,13 @@ Node *SimpleMulVars(Tree *tree, Node *cur_node, bool *was_simplified)
         RemoveNode(tree, &arg_1);
         RemoveNode(tree, &arg_2);      
 
-        *was_simplified = true;  
+          
     }
 
     return cur_node;
 }
 
-Node *SimpleDivVars(Tree *tree, Node *cur_node, bool *was_simplified)
+Node *SimpleDivVars(Tree *tree, Node *cur_node)
 {
     Node *arg_1 = cur_node->left;
     Node *arg_2 = cur_node->right;
@@ -255,8 +242,6 @@ Node *SimpleDivVars(Tree *tree, Node *cur_node, bool *was_simplified)
 
         RemoveNode    (tree, &arg_1);
         RemoveSubtree (tree, &arg_2); 
-
-        *was_simplified = true;       
     }
 
     else if (arg_2->type == NODE_NUM && arg_2->val.num == 0)
@@ -271,14 +256,12 @@ Node *SimpleDivVars(Tree *tree, Node *cur_node, bool *was_simplified)
 
         RemoveNode(tree, &arg_1);
         RemoveNode(tree, &arg_2);    
-
-        *was_simplified = true;    
     }
 
     return cur_node;
 }
 
-Node *SimpleDegVars(Tree *tree, Node *cur_node, bool *was_simplified)
+Node *SimpleDegVars(Tree *tree, Node *cur_node)
 {
     Node *arg_1 = cur_node->left;
     Node *arg_2 = cur_node->right;
@@ -295,8 +278,6 @@ Node *SimpleDegVars(Tree *tree, Node *cur_node, bool *was_simplified)
 
         RemoveNode    (tree, &arg_1);
         RemoveSubtree (tree, &arg_2);    
-
-        *was_simplified = true;    
     }
 
     else if ((arg_1->type == NODE_NUM && arg_1->val.num == 1) || (arg_2->type == NODE_NUM && arg_2->val.num == 0))         // 1 ^ f(x) || f(x) ^ 0  -->  1
@@ -306,8 +287,6 @@ Node *SimpleDegVars(Tree *tree, Node *cur_node, bool *was_simplified)
 
         RemoveNode(tree, &arg_1);
         RemoveNode(tree, &arg_2);     
-
-        *was_simplified = true;   
     }
 
     else if (arg_2->type == NODE_NUM && arg_2->val.num == 1)     // f(x) ^ 1 --> f(x)
@@ -316,8 +295,6 @@ Node *SimpleDegVars(Tree *tree, Node *cur_node, bool *was_simplified)
 
         RemoveNode(tree, &arg_1);
         RemoveNode(tree, &arg_2);      
-
-        *was_simplified = true;  
     }
 
     return cur_node;

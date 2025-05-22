@@ -512,7 +512,7 @@ Node *GetOp(Tree *dest_tree, size_t *ip)              // f(..) ��� f(.. , 
     Node *op_node = tokens[(*ip)++];
 
     if (op_node->val.math_op->form == INFIX)
-        SYNTAX_ERROR(dest_tree, op_node, "prefix form of operand");
+        SYNTAX_ERROR(dest_tree, op_node, "expected prefix form of operand");
 
     if (op_node->val.math_op->type == UNARY)
     {

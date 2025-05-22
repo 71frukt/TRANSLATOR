@@ -3,7 +3,7 @@ ASMFLAGS = -f elf64
 LD = ld -e _start
 LDFLAGS =
 
-TARGET = translator
+TARGET ?= translator
 
 all: $(TARGET)
 

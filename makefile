@@ -18,7 +18,7 @@ IR_BACKEND_DIR = ir_backend
 
 
 #---------------------------------------------------------------------------------------------
-.PHONY: all clean frontend middlend backend build_exe run_exe  $(foreach proj, $(SUBPROJECTS), $(proj) clean_$(proj) rebuild_$(proj))
+.PHONY: all clean frontend middlend backend build_spu run_asm run_translator $(foreach proj, $(SUBPROJECTS), $(proj) clean_$(proj) rebuild_$(proj))
 
 all: $(SUBPROJECTS)
 
@@ -26,13 +26,10 @@ clean_all:   $(addprefix clean_,   $(SUBPROJECTS))
 
 rebuild_all: $(addprefix rebuild_, $(SUBPROJECTS))
 
-build_exe: run_frontend run_backend spu_compile
+build_spu: run_frontend run_backend spu_compile
 
 spu_compile:
 	$(MAKE) run RES_SPU_ASM_NAME=$(RES_SPU_ASM_NAME) -C $(COMPILER_DIR)
-
-run_exe:
-	$(MAKE) run -C $(SPU_DIR)	
 
 
 $(foreach proj, $(SUBPROJECTS), 														   									\
@@ -60,4 +57,14 @@ $(foreach proj, $(SUBPROJECTS), 														   									\
 run_asm:
 	$(MAKE) -f makeasm run
 
-run_trans: run_frontend run_ir_backend run_asm
+run_translator: run_frontend run_ir_backend run_asm
+
+benchmark_translator:
+	python tr_benchmark/perf_profile_p_cores.py
+
+benchmark_spu:
+	cd SPU	&& \
+	cd spu	&& \
+	python perf_profile_p_cores.py	&& \
+	cd ..	&& \
+	cd ..

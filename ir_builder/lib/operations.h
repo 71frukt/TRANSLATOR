@@ -19,6 +19,7 @@ enum IrOperationType
     IR_OPERATION_TYPE_SUB     ,
     IR_OPERATION_TYPE_MUL     ,
     IR_OPERATION_TYPE_DIV     ,
+    IR_OPERATION_TYPE_SQRT    ,
     IR_OPERATION_TYPE_POW     ,
     IR_OPERATION_TYPE_EQ      ,
     IR_OPERATION_TYPE_NEQ     ,

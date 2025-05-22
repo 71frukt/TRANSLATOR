@@ -30,7 +30,7 @@ void PrintStartRegisterValues(FILE *dest_file)
                         "PUSH 0                   \n\n"
         
                         "CALL " MAIN_FUNC_NAME ":   \n"
-                        "TREE_SPU_OUT                    \n"
+                        "SPU_OUT                    \n"
                         "HLT                        \n"
     );
 }

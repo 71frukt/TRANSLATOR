@@ -75,7 +75,7 @@ struct IrBlock
     // IrBlockType     block_type;
     // IrOperationType op_type;      
 
-    const IrBlockTypeInfo *block_type_info;
+    const IrBlockTypeInfo     *block_type_info;
     const IrOperationTypeInfo *operation_info;  // if block is not operation -> op_type = IR_OP_TYPE_INVALID
     
     IrOperand ret_operand;

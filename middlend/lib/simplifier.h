@@ -7,22 +7,22 @@
 
 void  SimplifyTree      (Tree *code_tree);
 
-Node *SimplifyConstants (Tree *code_tree, Node *cur_node, bool *was_simplified);
-Node *DelNeutralElements(Tree *code_tree, Node *cur_node, bool *was_simplified);
+Node *SimplifyConstants (Tree *code_tree, Node *cur_node);
+Node *DelNeutralElements(Tree *code_tree, Node *cur_node);
 
 Node *CalculateNode     (Tree *tree,      Node *op_node);
 
-Node *SimpleBoolEqVars  (Tree *tree,      Node *cur_node, bool *was_simplified);
-Node *SimpleAddVars     (Tree *tree, Node *cur_node, bool *was_simplified);
-Node *SimpleSubVars     (Tree *tree, Node *cur_node, bool *was_simplified);
-Node *SimpleMulVars     (Tree *tree, Node *cur_node, bool *was_simplified);
-Node *SimpleDivVars     (Tree *tree, Node *cur_node, bool *was_simplified);
-Node *SimpleDegVars     (Tree *tree, Node *cur_node, bool *was_simplified);
+Node *SimpleBoolEqVars  (Tree *tree,      Node *cur_node);
+Node *SimpleAddVars     (Tree *tree, Node *cur_node);
+Node *SimpleSubVars     (Tree *tree, Node *cur_node);
+Node *SimpleMulVars     (Tree *tree, Node *cur_node);
+Node *SimpleDivVars     (Tree *tree, Node *cur_node);
+Node *SimpleDegVars     (Tree *tree, Node *cur_node);
 
 struct MathOpSimplifierInfo
 {
     MathOperation_enum num;
-    Node* (*simpl_vars_func) (Tree *tree, Node *cur_node, bool *was_simplified);
+    Node* (*simpl_vars_func) (Tree *tree, Node *cur_node);
 };
 
 const MathOpSimplifierInfo MathOpSimplifierInfos[MATH_OPERATIONS_NUM] =

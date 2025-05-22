@@ -29,23 +29,25 @@ struct MathOpAsmInfo
 
 const MathOpAsmInfo MathOpAsmInfos[MATH_OPERATIONS_NUM] = 
 {
-    { TREE_BOOL_EQ,      "JNE"  },
-    { TREE_BOOL_NEQ,     "JE"   },
-    { TREE_BOOL_GREATER, "JB"   },
-    { TREE_BOOL_LOWER,   "JA"   },
-    { TREE_ADD,          "ADD"  },
-    { TREE_SUB,          "SUB"  },
-    { TREE_MUL,          "MUL"  },
-    { TREE_DIV,          "DIV"  },
-    { TREE_SQRT,         "SQRT" },
-    { TREE_DEG,          NULL   },
+    { TREE_BOOL_EQ,         "JNE"  },
+    { TREE_BOOL_NEQ,        "JE"   },
+    { TREE_BOOL_LOWER,      "JA"   }, 
+    { TREE_BOOL_GREATER,    "JB"   },   
+    { TREE_BOOL_LOWER_EQ,   "JAE"  }, 
+    { TREE_BOOL_GREATER_EQ, "JBE"  },   
+    { TREE_ADD,             "ADD"  },
+    { TREE_SUB,             "SUB"  },
+    { TREE_MUL,             "MUL"  },
+    { TREE_DIV,             "DIV"  },
+    { TREE_SQRT,            "SQRT" },
+    { TREE_DEG,             NULL   },
 
-    { TREE_LN,           NULL   },
-    { TREE_LOG2,         NULL   },
+    { TREE_LN,              NULL   },
+    { TREE_LOG2,            NULL   },
 
-    { TREE_SIN,          "SIN"  },
-    { TREE_COS,          "COS"  },
-    { TREE_TAN,          "TG"   }
+    { TREE_SIN,             "SIN"  },
+    { TREE_COS,             "COS"  },
+    { TREE_TAN,             "TG"   }
 };
 
 //---------------------------------------------------------------------------------------------------------------//

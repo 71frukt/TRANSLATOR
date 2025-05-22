@@ -69,7 +69,7 @@ const AsmOperation AsmOperations[ASM_MATH_OPERATIONS_NUM]
     { SETRNDRAM_ASM,    "SETRNDRAM" },
     { DUMP_ASM,         "DUMP"      },
     { SPU_IN_ASM,       "SPU_IN"    },
-    { SPU_OUT_ASM,      "TREE_SPU_OUT"   },
+    { SPU_OUT_ASM,      "SPU_OUT"   },
     { HLT_ASM,          "HLT"       }
 };
 

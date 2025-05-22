@@ -301,6 +301,7 @@ void GetBlockNamesTable(Tree *tree, Node *block, Node *cur_node)
         if (cur_name == NULL)
         {
             char error[ERROR_NAME_LEN] = {};
+            sprintf(error, "Undefined variable named '%s'", cur_node->val.prop_name->name);
             SYNTAX_ERROR(tree, cur_node, error);
         }
 

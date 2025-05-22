@@ -42,7 +42,7 @@ static void SetPoisonOperationBlock(IrBlock *operation_block);
     const static IrBlockTypeInfo struct_info_##block_type_ = {block_type_ ON_IR_DEBUG( , debug_name_)}
 
     //                            block_type               debug_name
-    INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_CALL_FUNCTION  , "call_func"     );    
+    INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_CALL_FUNCTION , "call_func"     );    
     INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_FUNCTION_BODY , "func"          );
     INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_COND_JUMP     , "cond_jump"     );
     INIT_BLOCK_TYPE_INFO_( IR_BLOCK_TYPE_NEG_COND_JUMP , "neg_cond_jump" );    
@@ -66,6 +66,7 @@ static void SetPoisonOperationBlock(IrBlock *operation_block);
     INIT_OPERATION_INFO_( IR_OPERATION_TYPE_SUB     , "-"          );
     INIT_OPERATION_INFO_( IR_OPERATION_TYPE_MUL     , "*"          );
     INIT_OPERATION_INFO_( IR_OPERATION_TYPE_DIV     , "/"          );
+    INIT_OPERATION_INFO_( IR_OPERATION_TYPE_SQRT    , "sqrt"       );
     INIT_OPERATION_INFO_( IR_OPERATION_TYPE_POW     , "^"          );
     INIT_OPERATION_INFO_( IR_OPERATION_TYPE_EQ      , "=="         );
     INIT_OPERATION_INFO_( IR_OPERATION_TYPE_NEQ     , "!="         );
@@ -114,6 +115,7 @@ const IrOperationTypeInfo *GetIrOperationTypeInfo(IrOperationType operation_type
         TYPE_INFO_CASE_( IR_OPERATION_TYPE_SUB               );
         TYPE_INFO_CASE_( IR_OPERATION_TYPE_MUL               );
         TYPE_INFO_CASE_( IR_OPERATION_TYPE_DIV               );
+        TYPE_INFO_CASE_( IR_OPERATION_TYPE_SQRT              );
         TYPE_INFO_CASE_( IR_OPERATION_TYPE_POW               );
         TYPE_INFO_CASE_( IR_OPERATION_TYPE_EQ                );
         TYPE_INFO_CASE_( IR_OPERATION_TYPE_NEQ               );
@@ -289,7 +291,7 @@ static void SetPoisonOperationBlock(IrBlock *operation_block)
         return NONE_OPERAND;
 
     case NODE_VAR_OR_FUNC:
-        log(ERROR, "undefined type of var or func");
+        log(ERROR, "undefined type of var or func '%s'", cur_node->val.prop_name->name);
         return NONE_OPERAND;
 
     case NODE_FUNC:
@@ -476,20 +478,6 @@ static IrOperand GetIrOperation(IR_struct *ir, const Node *const math_op_node)
 static IrOperand GetIrVar(IR_struct *ir, const Node *const var_node)        // tmp = var
 {
     return {.type = IR_OPERAND_TYPE_VAR, .val = {.var = var_node->val.prop_name->number}};
-
-    // size_t op_tmp_num = ir->proper_names_count.tmp_count++;
-
-    // IrOperand op_tmp       = {.type = IR_OPERAND_TYPE_TMP, .val = {.tmp = op_tmp_num}};
-    // IrOperand assigned_var = {.type = IR_OPERAND_TYPE_VAR, .val = {.var = var_node->val.prop_name->number}};
-    
-    // ON_IR_DEBUG(
-    // LoadOperandRealName(&assigned_var, var_node);
-    // )
-
-    // NewAssignIrBlock(ir, op_tmp, assigned_var);
-    // // IrNewBlock(ir, IR_BLOCK_TYPE_ASSIGNMENT, IR_OPERATION_TYPE_NONE, NONE_OPERAND, op_tmp, assigned_var);
-
-    // return op_tmp;
 }
 
 
@@ -503,16 +491,6 @@ static IrOperand IrNewTmpOperand(IR_struct *ir)
 static IrOperand GetIrNum(IR_struct *ir, const Node *const num_node)          // tmp = num
 {
     return {.type = IR_OPERAND_TYPE_NUM, .val = {.num = num_node->val.num}};
-
-    // size_t op_tmp_num = ir->proper_names_count.tmp_count++;
-        
-    // IrOperand op_tmp       = {.type = IR_OPERAND_TYPE_TMP, .val = {.tmp = op_tmp_num}};
-    // IrOperand assigned_num = {.type = IR_OPERAND_TYPE_NUM, .val = {.num = num_node->val.num}};
-    
-    // // IrNewBlock(ir, IR_BLOCK_TYPE_ASSIGNMENT, IR_OPERATION_TYPE_NONE, NONE_OPERAND, op_tmp, assigned_num);
-    // NewAssignIrBlock(ir, op_tmp, assigned_num);
-
-    // return op_tmp;
 }
 
 
@@ -526,19 +504,15 @@ static IrOperand GetIrFuncInit(IR_struct *ir, const Node *const func_init_node)
 
     size_t func_num = func_node->val.prop_name->number;
     
-    // log(INFO, "init func '%s' - num = %lu", func_node->val.prop_name->name, func_num);
-
     size_t arg_cnt = GetFuncArgsNum(func_t_indictor_node);
 
     if (strcmp(func_node->val.prop_name->name, MAIN_FUNC_NAME) == 0)
         func_num = MAIN_FUNC_NUM;
 
     Label func_label  = {.func = {.num = func_num, .arg_cnt = arg_cnt}};
-    // IrOperand arg_cnt_operand = {.type = IR_OPERAND_TYPE_NUM, .val = {.num = arg_cnt}};
     
     IrBlock *new_func_block = IrNewBlock(ir, IR_BLOCK_TYPE_FUNCTION_BODY, IR_OPERATION_TYPE_NONE, NONE_OPERAND, NONE_OPERAND, NONE_OPERAND, func_label);
     
-    // log(INFO, "'%s' - num = %lu, args = %lu\n", func_node->val.prop_name->name, func_node->val.prop_name->number, arg_cnt);
     ON_IR_DEBUG(
     AddBlockComment(new_func_block, "int %s(%lu args)", func_node->val.prop_name->name, arg_cnt);
     )
@@ -571,7 +545,7 @@ static IrOperand GetCallParam(IR_struct *ir, const Node *const param_node)
 
     IrOperand arg_source_operand = NodeToIrOperand(ir, arg_node);
     IrOperand arg_dest_operand   = {.type = IR_OPERAND_TYPE_ARG, .val = ir->proper_names_count.arg_count++};
-log(INFO, "arg cnt = %lu", ir->proper_names_count.arg_count);
+
     NewAssignIrBlock(ir, arg_dest_operand, arg_source_operand);
 
     NodeToIrOperand(ir, param_node->right);
@@ -701,16 +675,15 @@ static IrOperationType TreeToIrMathOp(MathOperation_enum cur_tree_math_op)
         SWITCH_MATH_OP (TREE_SUB             , IR_OPERATION_TYPE_SUB     );
         SWITCH_MATH_OP (TREE_MUL             , IR_OPERATION_TYPE_MUL     );
         SWITCH_MATH_OP (TREE_DIV             , IR_OPERATION_TYPE_DIV     );
+        SWITCH_MATH_OP (TREE_SQRT            , IR_OPERATION_TYPE_SQRT    );
         SWITCH_MATH_OP (TREE_DEG             , IR_OPERATION_TYPE_POW     );
         
-        case TREE_SQRT:
-        case TREE_LN:
-        case TREE_LOG2:
-        case TREE_SIN:
-        case TREE_COS:
-        case TREE_TAN:
-
-        default:
+        case TREE_LN   :
+        case TREE_LOG2 :
+        case TREE_SIN  :
+        case TREE_COS  :
+        case TREE_TAN  :
+        default        :
             return IR_OPERATION_TYPE_NONE;
     }
 
