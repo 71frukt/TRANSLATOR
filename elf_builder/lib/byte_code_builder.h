@@ -5,6 +5,6 @@
 #include "ir.h"
 
 ElfFuncRes GetByteCodeFromIR(IR_struct *ir, TextSection *byte_code);
-
+ElfFuncRes IrBlockToBytes(const IrBlock *block, TextSection *text);
 
 #endif

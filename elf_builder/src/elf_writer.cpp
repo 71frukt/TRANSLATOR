@@ -100,7 +100,7 @@ void ShstrtabSectionHeaderFill(ElfData *elf_data)
 
 
 
-ElfFuncRes ElfDataCtor(ElfData *elf_data)
+ElfFuncRes ElfDataFill(ElfData *elf_data)
 {
     lassert(elf_data);
 
@@ -119,15 +119,14 @@ ElfFuncRes ElfDataCtor(ElfData *elf_data)
 }
 
 
-ElfFuncRes ElfDataDtor(ElfData *elf_data)
-{
-    lassert(elf_data);
+// ElfFuncRes ElfDataDtor(ElfData *elf_data)
+// {
+//     lassert(elf_data);
 
-    free(elf_data->text_sect.code);
-    elf_data->text_sect.size = 0;
+//     elf_data->text_sect.size = 0;
 
-    return ELF_FUNC_OK;
-}
+//     return ELF_FUNC_OK;
+// }
 
 
 ElfFuncRes WriteCode(FILE *elf_file, ElfData *elf_data)

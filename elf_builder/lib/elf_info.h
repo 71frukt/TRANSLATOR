@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
+const size_t MAX_CODE_SIZE = 4096;
+
 
 struct ElfHeader
 {
@@ -37,7 +39,7 @@ struct ProgramHeader
 
 struct TextSection
 {
-    char *code;
+    char code[MAX_CODE_SIZE];
     size_t size;
 };
 
@@ -85,7 +87,7 @@ void ProgramHeaderFill         (ElfData *elf_data);
 void TextSectionHeaderFill     (ElfData *elf_data);
 void ShstrtabSectionHeaderFill (ElfData *elf_data);
 
-ElfFuncRes ElfDataCtor  (ElfData *elf_data);
+ElfFuncRes ElfDataFill  (ElfData *elf_data);
 ElfFuncRes ElfDataDtor  (ElfData *elf_data);
 ElfFuncRes WriteCode    (FILE *elf_file, ElfData *elf_data);
 

@@ -5,6 +5,8 @@
 #include "elf_logger_settings.h"
 #include "logger.h"
 
+#include "instructions_to_bytes.h"
+
 // BASE_OUTPUT_ELF_NAME  - defined in makefile
 
 int main()
@@ -17,15 +19,25 @@ int main()
     FILE *dest_elf = fopen(BASE_OUTPUT_ELF_NAME, "wb");
 
     ElfData elf_data = {};
-    ELF_HANDLE(ElfDataCtor(&elf_data));
+    ELF_HANDLE(ElfDataFill(&elf_data));
     
-    ELF_HANDLE(WriteCode(dest_elf, &elf_data));
+    // ELF_HANDLE(WriteCode(dest_elf, &elf_data));
+
+    TextSection text = {};
+
+
+    // MovRegReg(&text, RDI_CODE, RBX_CODE);
+    // MovRegImm(&text, RSP_CODE, 12345678910);
+
+    MovRegMem(&text, RAX_CODE, RBP_CODE, -1024);
+    for (size_t i = 0; i < text.size; i++)
+        fprintf(stderr, "%02x ", (unsigned char) text.code[i]);
+
+
 
     fclose(dest_elf);
-    ELF_HANDLE(ElfDataDtor(&elf_data));
 
-
-    fprintf(stderr, "ELF_BUILDER_END\n\n");
+    fprintf(stderr, "\nELF_BUILDER_END\n\n");
 }
 
 
