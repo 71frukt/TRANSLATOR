@@ -21,10 +21,19 @@ const size_t MOV_SIZE  = 3;
 const size_t IMM_SIZE  = 8;
 
 void PushReg   (TextSection *text, RegCode reg_code);
+void PushVar   (TextSection *text, size_t var);
+void PushImm   (TextSection *text, int imm_32);
+
 void PopReg    (TextSection *text, RegCode reg_code);
+
 void MovRegReg (TextSection *text, RegCode reg1_code, RegCode reg2_code);
-void MovRegImm (TextSection *text, RegCode reg_code, long imm);
-void MovRegMem (TextSection *text, RegCode dest_reg , RegCode base_reg, int scale_imm); // mov reg, [base_reg + shift_reg * scale_imm]
+void MovRegImm (TextSection *text, RegCode reg_code , long imm);
+void MovRegVar (TextSection *text, RegCode dest_reg , size_t var);          // mov reg, [base_reg + shift_imm_32]
+void MovVarReg (TextSection *text, size_t var       , RegCode source_reg);  // mov [base_reg + shift_imm_32], reg
+void MovVarImm (TextSection *text, size_t var       , int source_imm_32);   // mov [base_reg + shift_mm_31], source_imm_32
+
+void AddRegReg (TextSection *text, RegCode reg1     , RegCode reg2);
+void SubRegImm (TextSection *text, RegCode reg      , int imm_32);
 
 // #define PUSH_REG_CODE(_reg_code)  (0x50 + _reg_code)
 // #define POP_REG_CODE(_reg_num)   (0x58 + _reg_num)

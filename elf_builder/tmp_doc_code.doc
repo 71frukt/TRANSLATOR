@@ -1,0 +1,13 @@
+digraph G{               
+bgcolor = "darkslategray";      
+edge [color = "aqua"]; 
+node_0x532000000800 [shape = "egg", style = filled, fillcolor = "tan", label = "new_line"]
+node_0x532000000850 [shape = "egg", style = filled, fillcolor = "tan", label = "int"]
+node_0x5320000008a0 [shape = "egg", style = filled, fillcolor = "tan", label = "var_t"]
+node_0x5320000008f0 [shape = "square", style = filled, fillcolor = "aquamarine", label = "var"]
+node_0x532000000940 [shape = "oval", style = filled, fillcolor = "skyblue", label = "2"]
+node_0x532000000800 -> node_0x532000000850
+node_0x532000000850 -> node_0x5320000008a0
+node_0x532000000850 -> node_0x532000000940
+node_0x5320000008a0 -> node_0x5320000008f0
+} 

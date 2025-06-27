@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "ir.h"
+
 const size_t MAX_CODE_SIZE = 4096;
 
 
@@ -87,8 +89,7 @@ void ProgramHeaderFill         (ElfData *elf_data);
 void TextSectionHeaderFill     (ElfData *elf_data);
 void ShstrtabSectionHeaderFill (ElfData *elf_data);
 
-ElfFuncRes ElfDataFill  (ElfData *elf_data);
-ElfFuncRes ElfDataDtor  (ElfData *elf_data);
+ElfFuncRes ElfDataFill  (ElfData *elf_data, IR_struct *ir);
 ElfFuncRes WriteCode    (FILE *elf_file, ElfData *elf_data);
 
 #endif /*ELF_INFO_H*/

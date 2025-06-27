@@ -23,15 +23,11 @@ void ElfHeaderFill(ElfData *elf_data)   // здесь уже должны быть заполнены Secti
 
     elf_data->sect_hdrs_allign = elf_data->text_sect_hdr.sh_addralign - (elf_data->shstrtab_hdr.sh_offset + elf_data->shstrtab_hdr.sh_size) % SECT_HDR_ALLIGN;
 
-    log(INFO, "elf_data->sect_hdrs_allign = %lu; SECT_HDR_ALLIGN = %lu", elf_data->sect_hdrs_allign, SECT_HDR_ALLIGN);
-
     if (elf_data->sect_hdrs_allign == SECT_HDR_ALLIGN)
         elf_data->sect_hdrs_allign = 0;
         
     elf_hdr->e_shoff     = elf_data->shstrtab_hdr.sh_offset + elf_data->shstrtab_hdr.sh_size + elf_data->sect_hdrs_allign;
     
-    log(INFO, "elf_hdr->e_shoff = %x", elf_hdr->e_shoff);
-
     elf_hdr->e_flags     = 0;
     elf_hdr->e_ehsize    = sizeof(ElfHeader);
     elf_hdr->e_phentsize = sizeof(ProgramHeader);
@@ -100,11 +96,11 @@ void ShstrtabSectionHeaderFill(ElfData *elf_data)
 
 
 
-ElfFuncRes ElfDataFill(ElfData *elf_data)
+ElfFuncRes ElfDataFill(ElfData *elf_data, IR_struct *ir)
 {
     lassert(elf_data);
 
-    ELF_HANDLE(GetByteCodeFromIR(NULL, &elf_data->text_sect));  // должно быть первым, тк здесь узнаем размер кода!
+    ELF_HANDLE(GetByteCodeFromIR(ir, &elf_data->text_sect));  // должно быть первым, тк здесь узнаем размер кода!
     lassert(elf_data->text_sect.code);
     
     TextSectionHeaderFill(elf_data);
@@ -150,8 +146,6 @@ ElfFuncRes WriteCode(FILE *elf_file, ElfData *elf_data)
     // ...alignment
     size_t sect_hdrs_allign_num = elf_data->sect_hdrs_allign;
     
-    log(INFO, "sect_hdrs_allign_num = %lu", sect_hdrs_allign_num);
-
     char *sect_allign_zeros = (char *) calloc(sect_hdrs_allign_num, sizeof(char));
     fwrite(sect_allign_zeros, 1, sect_hdrs_allign_num, elf_file);
     free(sect_allign_zeros);

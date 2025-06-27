@@ -11,30 +11,33 @@ static ElfFuncRes OperationBlockToBytes (const IrBlock *operation_block, TextSec
 
 static ElfFuncRes AddOperationInRaxBytes(TextSection *text, IrOperand operand1, IrOperand operand2);
 
+static ElfFuncRes AssignVarToBytes(IrOperand var_operand, IrOperand source_operand, TextSection *text);
+static ElfFuncRes AssignArgToBytes(IrOperand arg_operand, IrOperand source_operand, TextSection *text);
 
 static void GetOperandValToRegisterBytes(TextSection *text, IrOperand operand, RegCode dest_reg_code);
 
 
 ElfFuncRes GetByteCodeFromIR(IR_struct *ir, TextSection *text_sect)
 {
-    // FIXME: заменить эту хуйню на построение реального кода
+    IR_VERIFY(ir, ELF_FUNC_FAIL);
+    lassert(text_sect);
 
-    // text_sect->size = 12;
-    // text_sect->code = (char *) calloc(12, sizeof(char));
+    const IrBlock *blocks = ir->blocks;
 
-    char my_code[12] = 
-    {
-        0xb8, 0x3c, 0x00, 0x00, 0x00,  // mov eax, 60 (syscall exit)
-        0xbf, 0x7b, 0x00, 0x00, 0x00,  // mov edi, 666 (аргумент)
-        0x0f, 0x05                     // syscall
-    };
+    memcpy(text_sect->code + text_sect->size, START_PREAMBLE, START_PREAMBLE_LEN);
+    text_sect->size += START_PREAMBLE_LEN;
 
+    for (size_t i = 0; i < ir->size; i++)
+        ELF_HANDLE(IrBlockToBytes(blocks + i, text_sect));
 
-    for (size_t i = 0; i < 12; i++)
-    {
-        text_sect->code[i] = my_code[i];
-    }
+    memcpy(text_sect->code + text_sect->size, EXIT_PREAMBLE, EXIT_PREAMBLE_LEN);
+    text_sect->size += EXIT_PREAMBLE_LEN;
 
+    log(INFO, "Res code:\n");
+    for (size_t i = 0; i < text_sect->size; i++)
+        fprintf(stderr, "%02x ", (unsigned char) text_sect->code[i]);
+
+    IR_VERIFY(ir, ELF_FUNC_FAIL);
     return ELF_FUNC_OK;
 }
 
@@ -48,8 +51,8 @@ ElfFuncRes IrBlockToBytes(const IrBlock *block, TextSection *text)
     
     switch (block->block_type_info->type)
     {
-    case IR_BLOCK_TYPE_ASSIGNMENT    :  return AssignBlockToBytes    (block, text);
-    case IR_BLOCK_TYPE_OPERATION     :  return OperationBlockToBytes (block, text);
+    case IR_BLOCK_TYPE_ASSIGNMENT    :  return AssignBlockToBytes    (block, text); 
+    case IR_BLOCK_TYPE_OPERATION     :  return OperationBlockToBytes (block, text); // TODO дописать
     case IR_BLOCK_TYPE_LOCAL_LABEL   :
     case IR_BLOCK_TYPE_COND_JUMP     :
     case IR_BLOCK_TYPE_NEG_COND_JUMP :
@@ -63,13 +66,71 @@ ElfFuncRes IrBlockToBytes(const IrBlock *block, TextSection *text)
     }
 }
 
-static ElfFuncRes AssignBlockToBytes(const IrBlock *assign_block, TextSection *text)    // TODO: дописать
+static ElfFuncRes AssignBlockToBytes(const IrBlock *assign_block, TextSection *text)
 {
     lassert(assign_block && assign_block->block_type_info->type == IR_BLOCK_TYPE_ASSIGNMENT);
     lassert(text);
 
+    IrOperand dest_operand   = assign_block->operand_1;
+    IrOperand source_operand = assign_block->operand_2;
+
+    if (dest_operand.type == IR_OPERAND_TYPE_VAR)
+        return AssignVarToBytes(dest_operand, source_operand, text);
+
+    else    // if type == arg
+        return AssignArgToBytes(dest_operand, source_operand, text);
+
     return ELF_FUNC_OK;
 }
+
+static ElfFuncRes AssignVarToBytes(IrOperand var_operand, IrOperand source_operand, TextSection *text)
+{
+    lassert(var_operand.type == IR_OPERAND_TYPE_VAR);
+    lassert(source_operand.type == IR_OPERAND_TYPE_NUM || source_operand.type == IR_OPERAND_TYPE_TMP);
+    lassert(text);
+
+    log(INFO, "var_num = %lu, num = %d", var_operand.val.var, source_operand.val.num);
+
+    if (source_operand.type == IR_OPERAND_TYPE_TMP)
+    {
+        PopReg(text, RAX_CODE);
+        MovVarReg(text, var_operand.val.var, RAX_CODE);
+
+        // fprintf(dest_file, POP_(RAX_));
+        // fprintf(dest_file, MOV_(_VAR_, RAX_), var_operand.val.var);
+    }
+
+    else    // if type == num
+        MovVarImm(text, var_operand.val.var, source_operand.val.num);
+        // fprintf(dest_file, MOV_(_VAR_, _NUM_), var_operand.val.var, source_operand.val.num);
+        
+    SubRegImm(text, RSP_CODE, 8);
+    // fprintf(dest_file, SUB_(RSP_, "8" COMM_("place for var")));
+
+    return ELF_FUNC_OK;
+}
+
+
+static ElfFuncRes AssignArgToBytes(IrOperand arg_operand, IrOperand source_operand, TextSection *text)
+{
+    lassert(arg_operand.type == IR_OPERAND_TYPE_ARG);
+    lassert(source_operand.type == IR_OPERAND_TYPE_NUM || source_operand.type == IR_OPERAND_TYPE_TMP || source_operand.type == IR_OPERAND_TYPE_VAR);
+    lassert(text);
+
+    // if (arg_operand.val.arg == 0)   // the first arg of func call -> free space for future ret addr  // FIXME: добавить
+    //     return FuncFirstArgToAsm(source_operand, dest_file);
+
+    if (source_operand.type == IR_OPERAND_TYPE_NUM)
+        PushImm(text, source_operand.val.num);
+
+    else if (source_operand.type == IR_OPERAND_TYPE_VAR)
+        PushVar(text, source_operand.val.var);
+
+    // else argument is inited by tmp that is already in stack
+
+    return ELF_FUNC_OK;
+}
+
 
 static ElfFuncRes OperationBlockToBytes(const IrBlock *operation_block, TextSection *text)
 {
@@ -88,7 +149,7 @@ static ElfFuncRes OperationBlockToBytes(const IrBlock *operation_block, TextSect
     case IR_OPERATION_TYPE_GREAT   :  break;
     case IR_OPERATION_TYPE_GREATEQ :  break;
 
-    case IR_OPERATION_TYPE_ADD     :  AddOperationInRaxBytes(text, operand1, operand2); break;
+    case IR_OPERATION_TYPE_ADD     :  AddOperationInRaxBytes(text, operand1, operand2); break;  // TODO дописать
     case IR_OPERATION_TYPE_SUB     :  break;
     case IR_OPERATION_TYPE_MUL     :  break;
     case IR_OPERATION_TYPE_DIV     :  break;
@@ -99,6 +160,7 @@ static ElfFuncRes OperationBlockToBytes(const IrBlock *operation_block, TextSect
     default                        :    return ELF_FUNC_FAIL;
     }
 
+    PushReg(text, RAX_CODE);
     // fprintf(dest_file, PUSH_(RAX_));
     return ELF_FUNC_OK;
 }
@@ -110,6 +172,8 @@ static ElfFuncRes AddOperationInRaxBytes(TextSection *text, IrOperand operand1, 
 
     GetOperandValToRegisterBytes(text, operand2, RBX_CODE);
     GetOperandValToRegisterBytes(text, operand1, RAX_CODE);
+
+    AddRegReg(text, RAX_CODE, RBX_CODE);
 
     return ELF_FUNC_OK;
 }
@@ -124,22 +188,8 @@ static void GetOperandValToRegisterBytes(TextSection *text, IrOperand operand, R
         PopReg(text, dest_reg_code);
 
     else if (operand.type == IR_OPERAND_TYPE_VAR)
-        MovRegMem(text, dest_reg_code, RBP_CODE, -8 * (int) operand.val.var);
+        MovRegVar(text, dest_reg_code, operand.val.var);
 
     else // if type == NUM
         MovRegImm(text, dest_reg_code, operand.val.num);
 }
-
-
-// static void InstrBytesInTextSection(const char *instr_bytes, const size_t instr_size, TextSection *text)
-// {
-//     lassert(instr_bytes);
-//     lassert(text);
-
-//     for (size_t i = 0; i < instr_size; i++)
-//         text->code[text->size + i] + instr_bytes[i];
-
-//     text->size += instr_size;
-// }
-
-
