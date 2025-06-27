@@ -317,10 +317,10 @@ _Граф, полученный после работы фронтэнда_
 
 Читает дерево из файла оптимизирует его, сворачивая константы и условные переходы, результат которых известен на этапе компиляции. Результат работы так же записывается в файл.
 
-| До оптимизации                        | После оптимизации                         |
-|---------------------------------------|-------------------------------------------|
-| ![alt text](readme_images/bef_opt_const.png) | ![alt text](readme_images/aft_opt_const.png)     |
-| ![alt text](readme_images/bef_opt_if.png)    | ![alt text](readme_images/aft_opt_if.png)        |
+| До оптимизации                               | После оптимизации                            |
+|----------------------------------------------|--------------------------------------------- |
+| ![alt text](readme_images/bef_opt_const.png) | ![alt text](readme_images/aft_opt_const.png) |
+| ![alt text](readme_images/bef_opt_if.png)    | ![alt text](readme_images/aft_opt_if.png)    |
 
 
 ### 3. Построение IR и Backend 

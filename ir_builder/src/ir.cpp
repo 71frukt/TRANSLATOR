@@ -123,7 +123,7 @@ const IrOperationTypeInfo *GetIrOperationTypeInfo(IrOperationType operation_type
         TYPE_INFO_CASE_( IR_OPERATION_TYPE_LESSEQ            );
         TYPE_INFO_CASE_( IR_OPERATION_TYPE_GREAT             );
         TYPE_INFO_CASE_( IR_OPERATION_TYPE_GREATEQ           );
-        TYPE_INFO_CASE_( IR_OPERATION_TYPE_NONE );
+        TYPE_INFO_CASE_( IR_OPERATION_TYPE_NONE              );
 
         default:
             lassert(NULL, "Unknown operation type");
@@ -260,7 +260,7 @@ static void SetPoisonOperationBlock(IrBlock *operation_block)
 
 
 
-/*static*/ IrOperand NodeToIrOperand(IR_struct *ir, const Node *const cur_node)    // TODO: make static
+/*static*/ IrOperand NodeToIrOperand(IR_struct *ir, const Node *const cur_node)
 {
     IR_VERIFY(ir, {});
     

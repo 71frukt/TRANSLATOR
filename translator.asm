@@ -17,74 +17,12 @@ _start:
 func_777_1 : 
 	pop  rax 	; ret addr -> rax
 	mov  [rbp + 2 * 8], rax 
-	call scanf
-
-	push rax 
-	pop  rax 
-	mov  qword [rbp - 1 * 8], rax 
+	mov  qword [rbp - 1 * 8], 0 
 	sub  rsp , 8	; place for var
-	call scanf
-
-	push rax 
-	pop  rax 
-	mov  qword [rbp - 2 * 8], rax 
-	sub  rsp , 8	; place for var
-	call scanf
-
-	push rax 
-	pop  rax 
-	mov  qword [rbp - 3 * 8], rax 
-	sub  rsp , 8	; place for var
-	mov  rbx , 0 
-	mov  rax , qword [rbp - 1 * 8]
-	cmp  rax , rbx 
-	mov  rax , 0
-	mov  rbx , 1
-	cmove  rax , rbx 
-	push rax 
-	pop  rax 
-	test rax , rax 
-	jz  local_0 
-	sub  rsp , 8
-	push rbp 
-	push qword [rbp - 2 * 8]
-	mov  rax , rsp 
-	push qword [rbp - 3 * 8]
-	mov  rbp , rax 
-	call func_5_2 
-	push rax 
-	pop  rax 
-	call printf
-
-	mov  rax , 0 
-	mov  rsp , rbp 
-	add  rsp , 8
-	pop  rbp 
-	ret 
-
 
 local_0 :
-	mov  rbx , qword [rbp - 2 * 8]
-	mov  rax , qword [rbp - 2 * 8]
-	imul rbx 
-	push rax 
-	mov  rbx , qword [rbp - 1 * 8]
-	mov  rax , 4 
-	imul rbx 
-	push rax 
-	mov  rbx , qword [rbp - 3 * 8]
-	pop  rax 
-	imul rbx 
-	push rax 
-	pop  rbx 
-	pop  rax 
-	sub  rax , rbx 
-	push rax 
-	pop  rax 
-	mov  qword [rbp - 4 * 8], rax 
-	sub  rsp , 8	; place for var
-	mov  rbx , 0 
-	mov  rax , qword [rbp - 4 * 8]
+	mov  rbx , 500 
+	mov  rax , qword [rbp - 1 * 8]
 	cmp  rax , rbx 
 	mov  rax , 0
 	mov  rbx , 1
@@ -93,9 +31,23 @@ local_0 :
 	pop  rax 
 	test rax , rax 
 	jz  local_1 
-	mov  rax , 666 
-	call printf
+	mov  rbx , 1 
+	mov  rax , qword [rbp - 1 * 8]
+	add  rax , rbx 
+	push rax 
+	pop  rax 
+	mov  qword [rbp - 1 * 8], rax 
+	sub  rsp , 8	; place for var
+	sub  rsp , 8
+	push rbp 
+	push 5 
+	mov  rax , rsp 
+	mov  rbp , rax 
+	call func_3_1 
+	push rax 
+	jmp local_0 
 
+local_1 :
 	mov  rax , 0 
 	mov  rsp , rbp 
 	add  rsp , 8
@@ -103,37 +55,20 @@ local_0 :
 	ret 
 
 
-local_1 :
-	mov  rbx , 0 
-	mov  rax , qword [rbp - 4 * 8]
+func_3_1 : 
+	pop  rax 	; ret addr -> rax
+	mov  [rbp + 2 * 8], rax 
+	mov  rbx , 1 
+	mov  rax , qword [rbp - 0 * 8]
 	cmp  rax , rbx 
 	mov  rax , 0
 	mov  rbx , 1
-	cmove  rax , rbx 
+	cmovl  rax , rbx 
 	push rax 
 	pop  rax 
 	test rax , rax 
 	jz  local_2 
-	mov  rbx , qword [rbp - 2 * 8]
-	mov  rax , 0 
-	sub  rax , rbx 
-	push rax 
-	xor  rdx , rdx 
-	mov  rbx , 2 
-	pop  rax 
-	cqo
-	idiv rbx 
-	push rax 
-	xor  rdx , rdx 
-	mov  rbx , qword [rbp - 1 * 8]
-	pop  rax 
-	cqo
-	idiv rbx 
-	push rax 
-	pop  rax 
-	call printf
-
-	mov  rax , 0 
+	mov  rax , 1 
 	mov  rsp , rbp 
 	add  rsp , 8
 	pop  rbp 
@@ -141,128 +76,21 @@ local_1 :
 
 
 local_2 :
-	mov  rbx , qword [rbp - 2 * 8]
-	mov  rax , 0 
+	mov  rbx , 1 
+	mov  rax , qword [rbp - 0 * 8]
 	sub  rax , rbx 
 	push rax 
-	mov  rbx , qword [rbp - 4 * 8]
-	call sqrt 
+	pop  rax 
+	sub  rsp , 8
+	push rbp 
+	push rax 
+	mov  rax , rsp 
+	mov  rbp , rax 
+	call func_3_1 
 	push rax 
 	pop  rbx 
-	pop  rax 
-	sub  rax , rbx 
-	push rax 
-	xor  rdx , rdx 
-	mov  rbx , 2 
-	pop  rax 
-	cqo
-	idiv rbx 
-	push rax 
-	xor  rdx , rdx 
-	mov  rbx , qword [rbp - 1 * 8]
-	pop  rax 
-	cqo
-	idiv rbx 
-	push rax 
-	pop  rax 
-	mov  qword [rbp - 5 * 8], rax 
-	sub  rsp , 8	; place for var
-	mov  rbx , qword [rbp - 2 * 8]
-	mov  rax , 0 
-	sub  rax , rbx 
-	push rax 
-	mov  rbx , qword [rbp - 4 * 8]
-	call sqrt 
-	push rax 
-	pop  rbx 
-	pop  rax 
-	add  rax , rbx 
-	push rax 
-	xor  rdx , rdx 
-	mov  rbx , 2 
-	pop  rax 
-	cqo
-	idiv rbx 
-	push rax 
-	xor  rdx , rdx 
-	mov  rbx , qword [rbp - 1 * 8]
-	pop  rax 
-	cqo
-	idiv rbx 
-	push rax 
-	pop  rax 
-	mov  qword [rbp - 6 * 8], rax 
-	sub  rsp , 8	; place for var
-	mov  rax , qword [rbp - 5 * 8]
-	call printf
-
-	mov  rax , qword [rbp - 6 * 8]
-	call printf
-
-	mov  rax , 0 
-	mov  rsp , rbp 
-	add  rsp , 8
-	pop  rbp 
-	ret 
-
-
-func_5_2 : 
-	pop  rax 	; ret addr -> rax
-	mov  [rbp + 2 * 8], rax 
 	mov  rax , qword [rbp - 0 * 8]
-	call printf
-
-	mov  rax , qword [rbp - 1 * 8]
-	call printf
-
-	mov  rbx , 0 
-	mov  rax , qword [rbp - 0 * 8]
-	cmp  rax , rbx 
-	mov  rax , 0
-	mov  rbx , 1
-	cmove  rax , rbx 
-	push rax 
-	pop  rax 
-	test rax , rax 
-	jz  local_4 
-	mov  rbx , 0 
-	mov  rax , qword [rbp - 1 * 8]
-	cmp  rax , rbx 
-	mov  rax , 0
-	mov  rbx , 1
-	cmove  rax , rbx 
-	push rax 
-	pop  rax 
-	test rax , rax 
-	jz  local_3 
-	mov  rax , qword [rbp - 1 * 8]
-	call printf
-
-	mov  rax , 777 
-	mov  rsp , rbp 
-	add  rsp , 8
-	pop  rbp 
-	ret 
-
-
-local_3 :
-	mov  rax , 666 
-	mov  rsp , rbp 
-	add  rsp , 8
-	pop  rbp 
-	ret 
-
-
-local_4 :
-	xor  rdx , rdx 
-	mov  rbx , qword [rbp - 1 * 8]
-	mov  rax , qword [rbp - 0 * 8]
-	cqo
-	idiv rbx 
-	push rax 
-	pop  rbx 
-	mov  rax , 0 
-	sub  rax , rbx 
+	imul rbx 
 	push rax 
 	pop  rax 
 	mov  rsp , rbp 

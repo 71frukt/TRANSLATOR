@@ -39,6 +39,13 @@ PUSH 500
 
 JA while_end_mark_0:
 
+	; присваивание значения переменной 'i'
+PUSH [AX + 1]
+PUSH 1
+
+ADD 
+POP [AX + 1]
+
 	; вызов функции 'fact'   
 PUSH AX   
 	; передача аргументов в функцию 
@@ -53,13 +60,6 @@ POP BX
 POP AX  
 	PUSH CX  
 	; конец вызова функции 'fact'   
-
-	; присваивание значения переменной 'i'
-PUSH [AX + 1]
-PUSH 1
-
-ADD 
-POP [AX + 1]
 JMP while_start_mark_0:  
 while_end_mark_0:       
 	; конец цикла while

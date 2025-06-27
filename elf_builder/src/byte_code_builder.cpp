@@ -4,12 +4,12 @@
 #include "ir.h"
 #include "byte_code_builder.h"
 
-ElfFuncRes GetByteCodeFromIR(IR_struct *ir, ByteCode *byte_code)
+ElfFuncRes GetByteCodeFromIR(IR_struct *ir, TextSection *text_sect)
 {
     // FIXME: заменить эту хуйню на построение реального кода
 
-    byte_code->size = 12;
-    byte_code->data = (char *) calloc(12, sizeof(char));
+    text_sect->size = 12;
+    text_sect->code = (char *) calloc(12, sizeof(char));
 
     char my_code[12] = 
     {
@@ -21,7 +21,7 @@ ElfFuncRes GetByteCodeFromIR(IR_struct *ir, ByteCode *byte_code)
 
     for (size_t i = 0; i < 12; i++)
     {
-        byte_code->data[i] = my_code[i];
+        text_sect->code[i] = my_code[i];
     }
 
     return ELF_FUNC_OK;

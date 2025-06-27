@@ -4,7 +4,7 @@
 #include "elf_info.h"
 #include "ir.h"
 
-ElfFuncRes GetByteCodeFromIR(IR_struct *ir, ByteCode *byte_code);
+ElfFuncRes GetByteCodeFromIR(IR_struct *ir, TextSection *byte_code);
 
 
 #endif

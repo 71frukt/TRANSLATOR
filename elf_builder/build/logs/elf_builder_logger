@@ -11,6 +11,12 @@
 	<style>                                                                                                                 
                                                                                                                         
 	</style>                                                                                                                
+	<span class=cyan>info:	</span>	<span class=white>elf_data->sect_hdrs_allign = 3; SECT_HDR_ALLIGN = 16</span>
+
+	<span class=cyan>info:	</span>	<span class=white>elf_hdr->e_shoff = a0</span>
+
+	<span class=cyan>info:	</span>	<span class=white>sect_hdrs_allign_num = 3</span>
+
 		</pre>     
 	</body>      
 </html>

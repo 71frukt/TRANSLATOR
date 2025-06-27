@@ -55,7 +55,7 @@ void LogPrint(const char *const file, const int line, const char *const func, Lo
     assert(file);
     assert(func);
     assert(format);
-    assert(LogFile && "LogFile = NULL");
+    assert(LogFile && "LogFile = NULL, (!!!) maybe forgot logctor?");
 
     va_list args_console;
     va_list args_file;

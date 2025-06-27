@@ -57,7 +57,7 @@ $(foreach proj, $(SUBPROJECTS), 														   									\
 run_asm:
 	$(MAKE) -f makeasm run
 
-run_translator: run_frontend run_ir_backend run_asm
+run_translator: run_frontend run_middlend run_ir_backend run_asm
 
 benchmark_translator:
 	python tr_benchmark/perf_profile_p_cores.py

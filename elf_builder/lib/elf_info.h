@@ -25,20 +25,35 @@ struct ElfHeader
 
 struct ProgramHeader
 {
-    uint32_t  p_type;   // Тип сегмента (PT_LOAD = 1)
-    uint32_t  p_flags;  // Флаги (PF_X, PF_W, PF_R)
-    uint64_t  p_offset; // Смещение в файле
-    uint64_t  p_vaddr;  // Виртуальный адрес в памяти
-    uint64_t  p_paddr;  // Физический адрес (обычно = vaddr)
-    uint64_t  p_filesz; // Размер в файле
-    uint64_t  p_memsz;  // Размер в памяти
-    uint64_t  p_align;  // Выравнивание
+    uint32_t  p_type;           // Тип сегмента (PT_LOAD = 1)
+    uint32_t  p_flags;          // Флаги (PF_X, PF_W, PF_R)
+    uint64_t  p_offset;         // Смещение в файле
+    uint64_t  p_vaddr;          // Виртуальный адрес в памяти
+    uint64_t  p_paddr;          // Физический адрес (обычно = vaddr)
+    uint64_t  p_filesz;         // Размер в файле
+    uint64_t  p_memsz;          // Размер в памяти
+    uint64_t  p_align;          // Выравнивание
 };
 
-struct ByteCode
+struct TextSection
 {
-    char *data;
+    char *code;
     size_t size;
+};
+
+
+struct SectionHeader
+{
+    uint32_t sh_name;           // смещение в .shstrtab до имени секции    
+    uint32_t sh_type;           // тип секции (SHT_PROGBITS, SHT_STRTAB, ...)
+    uint64_t sh_flags;          // флаги доступа   
+    uint64_t sh_addr;           // адрес в памяти
+    uint64_t sh_offset;         // смещение секции в файле    
+    uint64_t sh_size;           // размер секции
+    uint32_t sh_link;           // зависит от типа (например, .symtab ссылается на .strtab)    
+    uint32_t sh_info;           // доп информация, зависит от типа
+    uint64_t sh_addralign;      // требуемое выравнивание    
+    uint64_t sh_entsize;        // размер элемента, если это таблица
 };
 
 
@@ -46,16 +61,29 @@ struct ElfData
 {
     ElfHeader     elf_hdr;
     ProgramHeader prog_hdr;
-    ByteCode      code;
+    TextSection   text_sect;
+    const char   *shstrtab;
+
+    // выравнивание к заголовкам секций (количество нулей)
+    size_t sect_hdrs_allign;
+    
+    SectionHeader null_header;
+    SectionHeader text_sect_hdr;
+    SectionHeader shstrtab_hdr;
 };
 
-const uint64_t CODE_OFFSET = 0x78;
+const uint64_t ENTRY_ADDR  = 0x400000;
+const uint64_t CODE_OFFSET = 0x80;
+const uint64_t SECT_HDR_ALLIGN = 0x10;
 
+const char SHSTRTAB_ELF[17] = "\0.text\0.shstrtab";
 
 #include "elf_debug.h"
 
-void ElfHeaderFill      (ElfHeader *elf_hdr);
-void ProgramHeaderFill  (ProgramHeader *prog_hdr);
+void ElfHeaderFill             (ElfData *elf_data);
+void ProgramHeaderFill         (ElfData *elf_data);
+void TextSectionHeaderFill     (ElfData *elf_data);
+void ShstrtabSectionHeaderFill (ElfData *elf_data);
 
 ElfFuncRes ElfDataCtor  (ElfData *elf_data);
 ElfFuncRes ElfDataDtor  (ElfData *elf_data);
