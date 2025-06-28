@@ -1,0 +1,110 @@
+<html>                                                                                                                    
+	<head>                                                                                                                  
+	<title>elf_builder_logger.html</title>                                                                                                       
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">                
+	</head>                                                                                                                 
+	<body>                                                                                                                  
+	<div class="jumbotron text-center">                                                                                   
+		<h1>elf_builder_logger.html</h1>                                                                                                           
+	</div>                                                                                                                  
+	<pre>                                                                                                                   
+	<style>                                                                                                                 
+	body { background: linear-gradient(to right, #0f2027, #203a43, #2c5364);}                                         
+	pre { color: #ffffff; }                                                                                               
+	.red{ color:red;}                                                                             
+	.yellow{ color:yellow;}                                                                             
+	.blue{ color:blue;}                                                                             
+	.green{ color:green;}                                                                             
+	.cyan{ color:cyan;}                                                                             
+	.Fuchsia{ color:Fuchsia;}                                                                             
+	.SkyBlue{ color:SkyBlue;}                                                                             
+	.jumbotron {                                                                                                            
+		background: linear-gradient(to bottom, #ffffff,  #ffffff, #001aff, #001aff, #b00000, #b00000);            
+		color: white;                                                                                                         
+		text-shadow: 1px 1px 2px rgba(0,0,0,0.5);                                                                           
+		border-radius: 0;                                                                                                     
+		margin-bottom: 0;                                                                                                     
+	}                                                                                                                       
+	.tables-row {                                            
+	    margin-left: 100px;                                  
+	    display: flex;                                       
+	    gap: 20px;                                           
+	}                                                        
+	                                                         
+	.table-with-caption {                                    
+	    display: flex;                                       
+	    flex-direction: column;                              
+	    align-items: center;                                 
+	}                                                        
+	                                                         
+	.table-caption {                                         
+	    margin-bottom: 10px;                                 
+	    font-weight: bold;                                   
+	}                                                        
+	.table {                                                 
+	    border-collapse: collapse;                           
+	    width: 100px;                                        
+	}                                                        
+	                                                         
+	.table td {                                              
+	    color: #00ccff;                                    
+	    border: 1px solid #3a4a5a;                         
+	    height: 35px;                                        
+	    text-align: center;                                  
+	}                                                        
+	                                                         
+	table tr:first-child td {                                
+	    color: #ffffff;                                    
+	    font-weight: bold;                                   
+	    background-color: rgba(0,0,0,0.2);                 
+	}                                                        
+	                                                         
+	table td:first-child {                                   
+	    color: #ffffff;                                    
+	}                                                        
+                                                                                                                        
+	</style>                                                                                                                
+	<span class=SkyBlue>Dumped</span> from <span class=cyan>src/main.cpp:34 (main)
+</span>
+	<span class=SkyBlue>IR dump</span>
+	IR [0x7b8192500020]
+	{
+		size     = 16
+		capacity = 50
+		IR code [0x529000000200]:
+
+	---------------------- CODE --------------------------------------
+		
+	func(func_777_1)		# int MAIN_HOI(1 args)
+		syscall(tmp_0, scanf)
+		assign(arg_0, tmp_0)
+		call_func(tmp_1, func_2_1)		# call fact(1 args)
+		syscall(printf, tmp_1)
+		return(0)
+
+		
+	func(func_2_1)		# int fact(1 args)
+		operation(tmp_2, <, var_0, 1)
+		neg_cond_jump(label_0, tmp_2)
+		return(1)
+
+		
+	local_label(label_0)
+		operation(tmp_3, -, var_0, 1)
+		assign(arg_0, tmp_3)
+		call_func(tmp_4, func_2_1)		# call fact(1 args)
+		operation(tmp_5, *, var_0, tmp_4)
+		return(tmp_5)
+
+	------------------------------------------------------------------
+
+	
+	}
+
+
+	<span class=cyan>info:	</span>	<span class=white>Res code:
+</span>
+
+		</pre>     
+	</body>      
+</html>
