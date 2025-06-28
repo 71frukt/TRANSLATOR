@@ -9,15 +9,14 @@ void PushReg(TextSection *text, RegCode reg_code)
 {
     lassert(text);
 
-    text->code[text->size] = (char) 0x50 + (char) reg_code;
-    text->size++;
+    text->code[text->size++] = (char) 0x50 + (char) reg_code;
 }
 
 void PushImm(TextSection *text, int imm_32)
 {
     lassert(text);
 
-    text->code[text->size] = (char) 0x68;
+    text->code[text->size++] = (char) 0x68;
 
     memcpy(text->code + text->size, &imm_32, 4);
     text->size += 4;
@@ -80,7 +79,7 @@ void MovRegVar(TextSection *text, RegCode dest_reg, size_t var) // mov reg, [bas
     text->size += 4;
 }
 
-void MovVarReg(TextSection *text, size_t var, RegCode source_reg)  // mov [base_reg + shift_imm_32], reg
+void MovVarReg(TextSection *text, int var, RegCode source_reg)  // mov [base_reg + shift_imm_32], reg
 {
     lassert(text);
 
@@ -131,6 +130,19 @@ void AddRegReg(TextSection *text, RegCode reg1, RegCode reg2)
     text->code[text->size++] = (char) 0x01;
 
     text->code[text->size++] = (char) (reg1 | reg2 << 3 | 0b11 << 6);
+}
+
+void AddRegImm(TextSection *text, RegCode reg, int imm_32)
+{
+    lassert(text);
+
+    text->code[text->size++] = (char) 0x48;
+    text->code[text->size++] = (char) 0x81;
+
+    text->code[text->size++] = (char) (reg | 0b11 << 6);
+
+    memcpy(text->code + text->size, &imm_32, 4);
+    text->size += 4;
 }
 
 void SubRegReg(TextSection *text, RegCode reg1, RegCode reg2)
@@ -203,7 +215,6 @@ void CmpRegReg(TextSection *text, RegCode reg1, RegCode reg2)
     text->code[text->size++] = (char) (0b11000000 | reg1 | reg2 << 3);
 }
 
-
 void FictitiousJump(TextSection *text, CondType cond_type, size_t label_num)      // заполняет поле смещения нулями и делает запись в фиксапы
 {
     switch (cond_type)
@@ -233,6 +244,22 @@ void FictitiousJump(TextSection *text, CondType cond_type, size_t label_num)    
     text->fixups.label_nums [fixups_size] = label_num;
     
     text->size += 4;    // временные нули
+}
+
+void FictitiousCall(TextSection *text, size_t func_num)     // номера функций и локальных меток НЕ ПЕРЕСЕКАЮТСЯ, так устроен IR
+{
+    text->code[text->size++] = (char) 0xE8;     // call
+
+    size_t fixups_size = text->fixups.size++;
+    text->fixups.label_addrs[fixups_size] = text->size;
+    text->fixups.label_nums [fixups_size] = func_num;
+    
+    text->size += 4;    // временные нули
+}
+
+void FuncRet(TextSection *text)
+{
+    text->code[text->size++] = (char) 0xC3;     // ret
 }
 
 void TestRaxRax(TextSection *text)

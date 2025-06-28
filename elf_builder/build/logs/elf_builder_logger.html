@@ -67,31 +67,44 @@
 	<span class=SkyBlue>Dumped</span> from <span class=cyan>src/main.cpp:34 (main)
 </span>
 	<span class=SkyBlue>IR dump</span>
-	IR [0x7ae0e6100020]
+	IR [0x7996c7100020]
 	{
-		size     = 6
+		size     = 14
 		capacity = 50
 		IR code [0x529000000200]:
 
 	---------------------- CODE --------------------------------------
 		
-	local_label(label_0)
-		operation(tmp_0, >, 5, 7)
-		neg_cond_jump(label_1, tmp_0)		# cycle_start
-		operation(tmp_1, +, 666, 777)
-		cond_jump(label_0, 1)		# cycle_end
+	func(func_777_1)		# int MAIN_HOI(1 args)
+		assign(arg_0, 5)
+		call_func(tmp_0, func_2_1)		# call fact(1 args)
+		return(tmp_0)
 
 		
-	local_label(label_1)
+	func(func_2_1)		# int fact(1 args)
+		operation(tmp_1, <, var_0, 1)
+		neg_cond_jump(label_0, tmp_1)
+		return(1)
+
+		
+	local_label(label_0)
+		operation(tmp_2, -, var_0, 1)
+		assign(arg_0, tmp_2)
+		call_func(tmp_3, func_2_1)		# call fact(1 args)
+		operation(tmp_4, *, var_0, tmp_3)
+		return(tmp_4)
+
 	------------------------------------------------------------------
 
 	
 	}
 
 
-	<span class=cyan>info:	</span>	<span class=white>label_0 -> 3</span>
+	<span class=cyan>info:	</span>	<span class=white>label_777 -> 39</span>
 
-	<span class=cyan>info:	</span>	<span class=white>label_1 -> 5a</span>
+	<span class=cyan>info:	</span>	<span class=white>label_2 -> 67</span>
+
+	<span class=cyan>info:	</span>	<span class=white>label_0 -> bc</span>
 
 	<span class=cyan>info:	</span>	<span class=white>Res code:
 </span>

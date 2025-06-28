@@ -67,43 +67,16 @@
 	<span class=SkyBlue>Dumped</span> from <span class=cyan>src/main.cpp:30 (main)
 </span>
 	<span class=SkyBlue>IR dump</span>
-	IR [0x7c0f08d00020]
+	IR [0x7e5a8eb00020]
 	{
-		size     = 22
+		size     = 2
 		capacity = 50
 		IR code [0x529000000200]:
 
 	---------------------- CODE --------------------------------------
 		
 	func(func_777_1)		# int MAIN_HOI(1 args)
-		assign(var_1, 0)		# int i
-		
-	local_label(label_0)
-		operation(tmp_0, <, var_1, 500)
-		neg_cond_jump(label_1, tmp_0)		# cycle_start
-		operation(tmp_1, +, var_1, 1)
-		assign(var_1, tmp_1)
-		assign(arg_0, 5)
-		call_func(tmp_2, func_3_1)		# call fact(1 args)
-		cond_jump(label_0, 1)		# cycle_end
-
-		
-	local_label(label_1)
-		return(0)
-
-		
-	func(func_3_1)		# int fact(1 args)
-		operation(tmp_3, <, var_0, 1)
-		neg_cond_jump(label_2, tmp_3)
-		return(1)
-
-		
-	local_label(label_2)
-		operation(tmp_4, -, var_0, 1)
-		assign(arg_0, tmp_4)
-		call_func(tmp_5, func_3_1)		# call fact(1 args)
-		operation(tmp_6, *, var_0, tmp_5)
-		return(tmp_6)
+		return(66)
 
 	------------------------------------------------------------------
 
