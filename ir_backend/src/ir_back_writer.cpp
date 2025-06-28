@@ -16,7 +16,7 @@ static IrBackendFuncRes BlockToAsm          (const IrBlock *block            , F
 static IrBackendFuncRes AssignBlockToAsm    (const IrBlock *assign_block     , FILE *dest_file);
 static IrBackendFuncRes OperationBlockToAsm (const IrBlock *operation_block  , FILE *dest_file);
 static IrBackendFuncRes LocalLabelToAsm     (const IrBlock *local_label_block, FILE *dest_file);
-static IrBackendFuncRes CondJumpToAsm       (const IrBlock *local_label_block, FILE *dest_file, const char *const cnd_jmp_sym);
+static IrBackendFuncRes CondJumpToAsm       (const IrBlock *jump_block       , FILE *dest_file, const char *const cnd_jmp_sym);
 static IrBackendFuncRes CallFuncToAsm       (const IrBlock *call_func_block  , FILE *dest_file);
 static IrBackendFuncRes FuncBodyToAsm       (const IrBlock *func_body_block  , FILE *dest_file);
 static IrBackendFuncRes FuncReturnToAsm     (const IrBlock *func_return_block, FILE *dest_file);
@@ -262,14 +262,14 @@ static IrBackendFuncRes LocalLabelToAsm(const IrBlock *local_label_block, FILE *
 }
 
 
-static IrBackendFuncRes CondJumpToAsm(const IrBlock *local_label_block, FILE *dest_file, const char *const cnd_jmp_sym)
+static IrBackendFuncRes CondJumpToAsm(const IrBlock *jump_block, FILE *dest_file, const char *const cnd_jmp_sym)
 {
-    lassert(local_label_block);
-    lassert(local_label_block->block_type_info->type == IR_BLOCK_TYPE_COND_JUMP || local_label_block->block_type_info->type == IR_BLOCK_TYPE_NEG_COND_JUMP);
+    lassert(jump_block);
+    lassert(jump_block->block_type_info->type == IR_BLOCK_TYPE_COND_JUMP || jump_block->block_type_info->type == IR_BLOCK_TYPE_NEG_COND_JUMP);
     lassert(cnd_jmp_sym);
 
-    IrOperand label_operand     = local_label_block->operand_1;
-    IrOperand condition_operand = local_label_block->operand_2;
+    IrOperand label_operand     = jump_block->operand_1;
+    IrOperand condition_operand = jump_block->operand_2;
 
     lassert(label_operand.type     == IR_OPERAND_TYPE_LOCAL_LABEL, "label num = '%d'", label_operand.val);
     lassert(condition_operand.type == IR_OPERAND_TYPE_TMP || condition_operand.type == IR_OPERAND_TYPE_NUM);

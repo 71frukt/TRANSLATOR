@@ -34,24 +34,23 @@ int main(const int argc, const char *argv[])
     IR_DUMP(&ir);
     
     ELF_HANDLE(ElfDataFill(&elf_data, &ir));
-    // IrToAsmCode(&ir, dest_elf);
 
     IrDtor(&ir);
     TreeDtor(&code_tree);
     fclose(input_ast);
 
-    
     ELF_HANDLE(WriteCode(dest_elf, &elf_data));
+    
 
 
     // MovRegReg(&text, RDI_CODE, RBX_CODE);
     // MovRegImm(&text, RSP_CODE, 12345678910);
     // SubRegImm(&text, RSP_CODE, 8);
-    fprintf(stderr, "\n\nmycode\n");
-    TextSection text = {};
-    MovRegImm(&text, RAX_CODE, 0x60);
-    for (size_t i = 0; i < text.size; i++)
-        fprintf(stderr, "%02x ", (unsigned char) text.code[i]);
+    // fprintf(stderr, "\n\nmycode\n");
+    // TextSection text = {};
+    // MovRegImm(&text, RAX_CODE, 0x60);
+    // for (size_t i = 0; i < text.size; i++)
+    //     fprintf(stderr, "%02x ", (unsigned char) text.code[i]);
 
 
 

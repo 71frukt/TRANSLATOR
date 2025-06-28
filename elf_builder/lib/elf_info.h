@@ -39,13 +39,6 @@ struct ProgramHeader
     uint64_t  p_align;          // Выравнивание
 };
 
-struct TextSection
-{
-    char code[MAX_CODE_SIZE];
-    size_t size;
-};
-
-
 struct SectionHeader
 {
     uint32_t sh_name;           // смещение в .shstrtab до имени секции    
@@ -58,6 +51,39 @@ struct SectionHeader
     uint32_t sh_info;           // доп информация, зависит от типа
     uint64_t sh_addralign;      // требуемое выравнивание    
     uint64_t sh_entsize;        // размер элемента, если это таблица
+};
+
+
+const size_t LABEL_LEN = 40;
+const size_t MAX_LABEL_NUM = 200;
+const size_t MAX_FIXUP_NUM = 200;
+
+const size_t POISON_LABEL_INDX = 0xBABACED;
+
+struct TextLabels
+{
+    size_t label_nums[MAX_LABEL_NUM];   // номер метки
+    size_t label_vals[MAX_LABEL_NUM];   // куда указывает
+
+    size_t size;
+};
+
+struct TextFixups
+{
+    size_t label_addrs[MAX_FIXUP_NUM];  // где встретилось обращение к метке
+    size_t label_nums [MAX_FIXUP_NUM];  // номер этой метки
+
+    size_t size;
+};
+
+
+struct TextSection
+{
+    char code[MAX_CODE_SIZE];
+    size_t size;
+
+    TextLabels labels;
+    TextFixups fixups;
 };
 
 

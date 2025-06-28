@@ -67,21 +67,31 @@
 	<span class=SkyBlue>Dumped</span> from <span class=cyan>src/main.cpp:34 (main)
 </span>
 	<span class=SkyBlue>IR dump</span>
-	IR [0x737cb8f00020]
+	IR [0x7ae0e6100020]
 	{
-		size     = 1
+		size     = 6
 		capacity = 50
 		IR code [0x529000000200]:
 
 	---------------------- CODE --------------------------------------
-		assign(var_0, 2)		# int var
+		
+	local_label(label_0)
+		operation(tmp_0, >, 5, 7)
+		neg_cond_jump(label_1, tmp_0)		# cycle_start
+		operation(tmp_1, +, 666, 777)
+		cond_jump(label_0, 1)		# cycle_end
+
+		
+	local_label(label_1)
 	------------------------------------------------------------------
 
 	
 	}
 
 
-	<span class=cyan>info:	</span>	<span class=white>var_num = 0, num = 2</span>
+	<span class=cyan>info:	</span>	<span class=white>label_0 -> 3</span>
+
+	<span class=cyan>info:	</span>	<span class=white>label_1 -> 5a</span>
 
 	<span class=cyan>info:	</span>	<span class=white>Res code:
 </span>

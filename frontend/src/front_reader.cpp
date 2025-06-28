@@ -24,7 +24,9 @@ void BuildTreeByCode(Tree *tree, FILE *source)
 {
     MakeTokens(tree, source);
 
-    tree->root_ptr = GetCode(tree);
+    // tree->root_ptr = GetCode(tree);
+    size_t ip = 0;
+    tree->root_ptr = GetWhile(tree, &ip);
 
     MakeNamesTablesForBlocks(tree, tree->root_ptr);
 
