@@ -3,22 +3,23 @@ USE_DEBUG ?= true
 RES_SPU_ASM_NAME = ../../res_asm.asm 		# the path relative to the compiler folder
 # RES_TRANSLATOR_ASM_NAME = translator.asm
 
-SUBPROJECTS  = frontend middlend backend tree tree_saver compiler spu ir_backend
+SUBPROJECTS  = frontend middlend backend tree tree_saver compiler spu ir_backend elf_builder
 
 # *proj_name in capital letters*_DIR = ***
-FRONTEND_DIR   = frontend
-MIDDLEND_DIR   = middlend
-BACKEND_DIR    = backend
-TREE_DIR 	   = tree
-TREE_SAVER_DIR = tree_saver
-COMPILER_DIR   = SPU/compiler
-SPU_DIR 	   = SPU/spu
-IR_BACKEND_DIR = ir_backend
+FRONTEND_DIR    = frontend
+MIDDLEND_DIR    = middlend
+BACKEND_DIR     = backend
+TREE_DIR 	    = tree
+TREE_SAVER_DIR  = tree_saver
+COMPILER_DIR    = SPU/compiler
+SPU_DIR 	    = SPU/spu
+IR_BACKEND_DIR  = ir_backend
+ELF_BUILDER_DIR = elf_builder
 
 
 
 #---------------------------------------------------------------------------------------------
-.PHONY: all clean frontend middlend backend build_spu run_asm run_translator $(foreach proj, $(SUBPROJECTS), $(proj) clean_$(proj) rebuild_$(proj))
+.PHONY: all clean frontend middlend backend build_spu build_asm run_translator $(foreach proj, $(SUBPROJECTS), $(proj) clean_$(proj) rebuild_$(proj))
 
 all: $(SUBPROJECTS)
 
@@ -54,10 +55,11 @@ $(foreach proj, $(SUBPROJECTS), 														   									\
 	)																														\
 )
 
-run_asm:
-	$(MAKE) -f makeasm run
 
-run_translator: run_frontend run_middlend run_ir_backend run_asm
+run_translator: run_frontend run_middlend run_elf_builder
+
+build_asm:
+	$(MAKE) -f makeasm run
 
 benchmark_translator:
 	python tr_benchmark/perf_profile_p_cores.py

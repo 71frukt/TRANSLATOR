@@ -1,4 +1,10 @@
 #include <stdio.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+
 
 #include "elf_info.h"
 #include "ir.h"
@@ -11,20 +17,23 @@ static ElfFuncRes OperationBlockToBytes (const IrBlock *operation_block  , TextS
 static ElfFuncRes CondJumpToBytes       (const IrBlock *jump_block       , TextSection *text, CondType cond_type);
 static ElfFuncRes CallFuncToBytes       (const IrBlock *call_func_block  , TextSection *text);
 static ElfFuncRes FuncReturnToBytes     (const IrBlock *func_return_block, TextSection *text);
+static ElfFuncRes SyscallToBytes        (const IrBlock *syscall_block    , TextSection *text);
 
 static void AddOperationInRaxBytes  (TextSection *text, IrOperand operand1, IrOperand operand2);
 static void SubOperationInRaxBytes  (TextSection *text, IrOperand operand1, IrOperand operand2);
 static void MulOperationInRaxBytes  (TextSection *text, IrOperand operand1, IrOperand operand2);
 static void DivOperationInRaxBytes  (TextSection *text, IrOperand operand1, IrOperand operand2);
 static void BoolOperationInRaxBytes (TextSection *text, IrOperand operand1, IrOperand operand2, CMovCode cmov_code);
+static void SqrtOperationInRaxBytes (TextSection *text, IrOperand operand);
 
-static void MakePreambleBytes(TextSection *text);
 
 static ElfFuncRes NewLabel          (TextSection *text, size_t new_label_num);
 static ElfFuncRes FuncBodyToBytes   (TextSection *text, size_t func_num);
 
 static ElfFuncRes AssignVarToBytes  (IrOperand var_operand, IrOperand source_operand, TextSection *text);
 static ElfFuncRes AssignArgToBytes  (IrOperand arg_operand, IrOperand source_operand, TextSection *text);
+
+static void MakePreambleBytes(TextSection *text);
 
 static ElfFuncRes FuncFirstArgToBytes(IrOperand arg_source_operand, TextSection *text);
 
@@ -33,6 +42,11 @@ static void GetOperandValToRegisterBytes (TextSection *text, IrOperand operand, 
 static void UseFixups (TextSection *text);
 
 static size_t FindLabelIndxByNum (TextLabels *labels, size_t label_num);
+
+static ElfFuncRes AddSystemLib(TextSection *text);
+
+static size_t GetSysFuncNumByName(const char *const sys_name);
+
 
 
 ElfFuncRes GetByteCodeFromIR(IR_struct *ir, TextSection *text_sect)
@@ -81,7 +95,82 @@ static void MakePreambleBytes(TextSection *text)
     memcpy(text->code + text->size, EXIT_PREAMBLE, EXIT_PREAMBLE_LEN);      // hlt
     text->size += EXIT_PREAMBLE_LEN;
 
-    text->size += 16;   // FIXME убрать
+    ELF_HANDLE(AddSystemLib(text));
+
+    text->size += 16;   // FIXME: убрать
+}
+
+static ElfFuncRes AddSystemLib(TextSection *text)
+{
+    int lib_descriptor = open(SYSTEM_LIB_BIN_FULLNAME, O_RDONLY);
+
+    if (lib_descriptor == -1)
+    {
+        log(ERROR, "error opening system_lib_bin");
+        return ELF_FUNC_FAIL;
+    }
+
+    struct stat lib_stat;
+
+    if (fstat(lib_descriptor, &lib_stat) == -1)
+    {
+        log(ERROR, "fstat failed");
+        close(lib_descriptor);
+        return ELF_FUNC_FAIL;
+    }
+
+    size_t lib_size = (size_t) lib_stat.st_size;
+    if (lib_size == 0) 
+    {
+        log(WARNING, "System lib file is empty\n");
+        close(lib_descriptor);
+        return ELF_FUNC_OK;
+    }
+
+    char* lib_data = (char *) mmap (
+        NULL,
+        lib_size,
+        PROT_READ,
+        MAP_PRIVATE,
+        lib_descriptor,
+        0
+    );
+
+    if (lib_data == MAP_FAILED) 
+    {
+        log(ERROR, "mmap failed");
+        close(lib_descriptor);
+        return ELF_FUNC_FAIL;
+    }
+
+    memcpy(text->code + text->size, lib_data, lib_size);
+
+    TextLabels *labels = &text->labels;
+
+    size_t labels_size = labels->size++;
+    labels->label_nums[labels_size] = SYS_PRINTF_NUM;
+    labels->label_vals[labels_size] = text->size + SYS_PRINTF_SHIFT;
+
+    labels_size = labels->size++;
+    labels->label_nums[labels_size] = SYS_SCANF_NUM;
+    labels->label_vals[labels_size] = text->size + SYS_SCANF_SHIFT;
+
+    labels_size = labels->size++;
+    labels->label_nums[labels_size] = SYS_SQRT_NUM;
+    labels->label_vals[labels_size] = text->size + SYS_SQRT_SHIFT;
+
+    text->size += lib_size;
+
+
+    if (munmap(lib_data, lib_size) == -1) 
+    {
+        log(ERROR, "munmap failed");
+        close(lib_descriptor);
+        return ELF_FUNC_FAIL;
+    }
+
+    close(lib_descriptor);
+    return ELF_FUNC_OK;
 }
 
 
@@ -100,7 +189,7 @@ ElfFuncRes IrBlockToBytes(const IrBlock *block, TextSection *text)
     case IR_BLOCK_TYPE_CALL_FUNCTION :  return CallFuncToBytes       (block, text);
     case IR_BLOCK_TYPE_FUNCTION_BODY :  return FuncBodyToBytes       (text,  block->label.func.num);
     case IR_BLOCK_TYPE_RETURN        :  return FuncReturnToBytes     (block, text);
-    case IR_BLOCK_TYPE_SYSCALL       : // TODO дописать
+    case IR_BLOCK_TYPE_SYSCALL       :  return SyscallToBytes        (block, text);
     case IR_BLOCK_TYPE_INVALID       :
 
     default                          : return ELF_FUNC_FAIL;
@@ -215,11 +304,11 @@ static ElfFuncRes OperationBlockToBytes(const IrBlock *operation_block, TextSect
     case IR_OPERATION_TYPE_GREAT   :  BoolOperationInRaxBytes(text, operand1, operand2, CMOV_G) ; break;
     case IR_OPERATION_TYPE_GREATEQ :  BoolOperationInRaxBytes(text, operand1, operand2, CMOV_GE); break;
 
-    case IR_OPERATION_TYPE_ADD     :  AddOperationInRaxBytes(text, operand1, operand2); break;
-    case IR_OPERATION_TYPE_SUB     :  SubOperationInRaxBytes(text, operand1, operand2); break;
-    case IR_OPERATION_TYPE_MUL     :  MulOperationInRaxBytes(text, operand1, operand2); break;
-    case IR_OPERATION_TYPE_DIV     :  DivOperationInRaxBytes(text, operand1, operand2); break;
-    case IR_OPERATION_TYPE_SQRT    :  break;    // TODO дописать
+    case IR_OPERATION_TYPE_ADD     :  AddOperationInRaxBytes (text, operand1, operand2);          break;
+    case IR_OPERATION_TYPE_SUB     :  SubOperationInRaxBytes (text, operand1, operand2);          break;
+    case IR_OPERATION_TYPE_MUL     :  MulOperationInRaxBytes (text, operand1, operand2);          break;
+    case IR_OPERATION_TYPE_DIV     :  DivOperationInRaxBytes (text, operand1, operand2);          break;
+    case IR_OPERATION_TYPE_SQRT    :  SqrtOperationInRaxBytes(text, operand1);                    break;
 
     case IR_OPERATION_TYPE_POW     :
     case IR_OPERATION_TYPE_NONE    :
@@ -240,8 +329,6 @@ static ElfFuncRes NewLabel(TextSection *text, size_t new_label_num)
 
     text->labels.label_nums[labels_size] = new_label_num;
     text->labels.label_vals[labels_size] = text->size;
-
-    log(INFO, "label_%lu -> %x", text->labels.label_nums[labels_size], text->labels.label_vals[labels_size]);
 
     return ELF_FUNC_OK;
 }
@@ -330,6 +417,38 @@ static ElfFuncRes FuncReturnToBytes(const IrBlock *func_return_block, TextSectio
     return ELF_FUNC_OK;
 }
 
+static ElfFuncRes SyscallToBytes(const IrBlock *syscall_block, TextSection *text)
+{
+    lassert(syscall_block && syscall_block->block_type_info->type == IR_BLOCK_TYPE_SYSCALL);
+    lassert(text);
+
+    if (syscall_block->operand_1.type != IR_OPERAND_TYPE_NONE)
+        GetOperandValToRegisterBytes(text, syscall_block->operand_1, RAX_CODE);  // syscall arg in rax
+
+    size_t sys_func_num = GetSysFuncNumByName(syscall_block->label.sys);
+    FictitiousCall(text, sys_func_num);
+
+    if (syscall_block->ret_operand.type != IR_OPERAND_TYPE_NONE)
+        PushReg(text, RAX_CODE);
+
+    return ELF_FUNC_OK;
+}
+
+
+static size_t GetSysFuncNumByName(const char *const sys_name)
+{
+    if (strcmp(sys_name, SYS_PRINTF_NAME) == 0)
+        return SYS_PRINTF_NUM;
+
+    else if (strcmp(sys_name, SYS_SCANF_NAME) == 0)
+        return SYS_SCANF_NUM;
+
+    else 
+    {
+        log(ERROR, "unknown sys func name: '%s'", sys_name);
+        return (size_t) -1;
+    }
+}
 
 
 static void AddOperationInRaxBytes(TextSection *text, IrOperand operand1, IrOperand operand2)
@@ -375,6 +494,16 @@ static void DivOperationInRaxBytes(TextSection *text, IrOperand operand1, IrOper
 
     IDivReg(text, RBX_CODE);
 }
+
+static void SqrtOperationInRaxBytes(TextSection *text, IrOperand operand)
+{
+    lassert(text);
+
+    GetOperandValToRegisterBytes(text, operand, RBX_CODE);
+
+    FictitiousCall(text, SYS_SQRT_NUM);
+}
+
 
 static void BoolOperationInRaxBytes(TextSection *text, IrOperand operand1, IrOperand operand2, CMovCode cmov_code)
 {

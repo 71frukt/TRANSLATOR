@@ -34,10 +34,16 @@ DEBUG_DIRS_MK	   = LOGS_DIR GRAPH_DIR
 #------------------------------------------------------------------------------------------
 
 
+SYSTEM_LIB_BIN_FILE  ?= system_lib.bin
+BASE_OUTPUT_ELF_FILE ?= ../executable.phsh
+
 #----------- define variables -------------------------------------------------------------
 LOGS_FOLDER_NAME = \"$(LOGS_DIR)\"
-BASE_OUTPUT_ELF_NAME = \"executable.hui\"
-DEFINE_VARS = LOGS_FOLDER_NAME BASE_OUTPUT_ELF_NAME
+BASE_OUTPUT_ELF_NAME = \"$(BASE_OUTPUT_ELF_FILE)\"
+OBJ_DIR_NAME = \"$(OBJ_DIR)\"
+SYSTEM_LIB_BIN_NAME = \"$(SYSTEM_LIB_BIN_FILE)\"
+
+DEFINE_VARS = LOGS_FOLDER_NAME BASE_OUTPUT_ELF_NAME OBJ_DIR_NAME SYSTEM_LIB_BIN_NAME
 #------------------------------------------------------------------------------------------
 
 
@@ -91,11 +97,11 @@ FLAGS += $(DEFINE_VARS_FLAGS)
 
 #-------------------- targets -------------------------------------------------------
 
-.PHONY: all clean rebuild build_libs
+.PHONY: all clean rebuild build_libs build_system_lib
 
-all: $(TARGET) $(foreach dir, $(RELEASE_DIRS_MK), $($(dir)))  $(if $(USE_DEBUG), $(foreach dir, $(DEBUG_DIRS_MK), $($(dir))))
+all:  $(foreach dir, $(RELEASE_DIRS_MK), $($(dir)))  $(if $(USE_DEBUG), $(foreach dir, $(DEBUG_DIRS_MK), $($(dir)))) build_system_lib $(TARGET)
 
-run:
+run: give_exec_rights
 	@$(TARGET)
 
 gdb:
@@ -122,6 +128,11 @@ rebuild_libs:
 		$(MAKE) rebuild -C $(dir) USE_DEBUG=$(USE_DEBUG) $($(flags));		\
 	)
 
+build_system_lib:
+	nasm -f bin $(SRC_DIR)/system_lib.asm -o $(OBJ_DIR)/$(SYSTEM_LIB_BIN_FILE)
+
+give_exec_rights:
+	chmod +x $(BASE_OUTPUT_ELF_FILE)
 
 $(TARGET): $(THIS_PROJ_OBJ)
 	$(CXX) $(CXXFLAGS) $(FLAGS) $(THIS_PROJ_OBJ) $(ARCHIVES_DIRS_FLAGS) $(ARCHIVE_NAMES_FLAGS) -o $@
