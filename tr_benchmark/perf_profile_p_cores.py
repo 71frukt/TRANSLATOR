@@ -107,4 +107,4 @@ def run_perf(command, iterations=10):
         return  # Прерываем выполнение, если не удалось установить частоту
 
 if __name__ == "__main__":
-    run_perf(["./translator"])
+    run_perf(["./executable.phsh"])
