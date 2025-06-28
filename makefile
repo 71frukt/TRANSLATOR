@@ -3,7 +3,7 @@ USE_DEBUG ?= true
 RES_SPU_ASM_NAME = ../../res_asm.asm 		# the path relative to the compiler folder
 # RES_TRANSLATOR_ASM_NAME = translator.asm
 
-SUBPROJECTS  = frontend middlend backend tree tree_saver compiler spu ir_backend elf_builder
+SUBPROJECTS  = tree tree_saver compiler spu ir_backend elf_builder frontend middlend backend
 
 # *proj_name in capital letters*_DIR = ***
 FRONTEND_DIR    = frontend
